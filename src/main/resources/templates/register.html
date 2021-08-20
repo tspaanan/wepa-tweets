@@ -6,16 +6,21 @@
         <title>wepa-tweets</title>
     </head>
     <body>
-        <!--<h1 th:text="${'Hello ' + message}">Hello world</h1>-->
         <div th:replace="fragments/layout :: header"></div>
         
         <div class="container">
             <div class="row">
                 <div class="col-2">
-                    <div th:replace="fragments/layout :: sidebar"></div>
+                    
                 </div>
                 <div class="col-10">
-                    FRONT PAGE
+                    <form th:action="@{/register}" method="POST">
+                        <input type="text" name="username">username</input>
+                        <input type="text" name="password">password</input>
+                        <input type="text" name="realname">real name</input>
+                        <input type="text" name="random">favourite random string</input>
+                        <input type="submit" value="Register!"/>
+                    </form>
                 </div>
             </div>
         </div>
