@@ -14,10 +14,21 @@
                 <div class="col-2">
                     <div th:replace="fragments/layout :: sidebar"></div>
                 </div>
-                <div class="col-10">
+                <div class="col-4">
+                    <input type="text" id="searchterm"/>
+                    <button onclick="searchTweetters()">Search Tweetters!</button>
+                    <section id="searchResults">
+                        <ul id="searchResultsList">
+                            
+                        </ul>
+                    </section>
+                </div>
+                <div class="col-6">
                     FRONT PAGE
                 </div>
             </div>
         </div>
+        <script th:inline="javascript"> var contextRoot = /*[[@{/}]]*/ '';</script>
+        <script th:src="@{/javascript/code.js}" defer></script>
     </body>
 </html>
