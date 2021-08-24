@@ -41,10 +41,10 @@ public class DefaultController {
         return "index";
     }
     
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    //@GetMapping("/login")
+    //public String login() {
+    //    return "login";
+    //}
     
     @GetMapping("/register")
     public String register() {
@@ -105,4 +105,5 @@ public class DefaultController {
         //return true; //palauttaa 500 vastauksen
         //return false, in case blocklist prevents following
     }
+    
 }

@@ -24,6 +24,6 @@ public class WepaTweetter extends AbstractPersistable<Long> {
     private String password;
     private String realname;
     private String random;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany//(fetch = FetchType.LAZY) //fluentinium tests require EAGER
     private List<WepaTweetter> following = new ArrayList<>();
 }

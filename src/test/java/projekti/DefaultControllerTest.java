@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,8 +73,11 @@ public class DefaultControllerTest {
     @Autowired
     private WepaTweetterRepository wepaTweetterRepository;
     
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+    
     @Test
-    @WithMockUser(username="mockUser", password="password", roles="USER")
+    @WithMockUser
     //for some reason @WithMockUser doesn't work with SecurityConfiguration,
     //unless all the requests are allowed, making it useless
     public void userCanRegisterViaRegisterPost() throws Exception {
@@ -102,9 +106,11 @@ public class DefaultControllerTest {
     //@Test
     //@WithMockUser(username="testUser", password="password", roles="USER")
     //perhaps this annotation doesn't work as expected?
+    //maybe https://docs.spring.io/spring-security/site/docs/4.0.x/reference/htmlsingle/#test-mockmvc
     //public void userCanFollowOthers() throws Exception {
     //    this.mockMvc.perform(get("/follow")
-    //                .param("follow", "otherUser"));
+    //                .param("follow", "otherUser")
+    //                .with(user(userDetailsService.loadUserByUsername("testUser"))));
     //    List<WepaTweetter> followers = 
     //            this.wepaTweetterRepository.findByUsername("testUser").getFollowing();
     //    assertEquals("otherUser", followers.get(0).getUsername());
