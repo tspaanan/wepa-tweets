@@ -8,13 +8,15 @@
     </head>
     <body>
         <header th:fragment="header">
-            <div class="jumbotron">
-            <div class="container">HEADER</div>
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-4">HEADER</h1>
+                </div>
             </div>
         </header>
         <section th:fragment="sidebar">
             <ul>
-                <!--<li sec:authorize="isAnonymous()"><a th:href="@{/login}">Login</a></li>-->
+                <li sec:authorize="isAnonymous()"><a th:href="@{/login}">Login</a></li>
                 <li sec:authorize="isAnonymous()"><a th:href="@{/register}">Register</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/logout}">Logout</a></li>
             </ul>

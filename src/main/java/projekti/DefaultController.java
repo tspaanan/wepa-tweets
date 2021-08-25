@@ -80,7 +80,14 @@ public class DefaultController {
         //this.wepaTweetterRepository.findByUsername("admin").setFollowing(new ArrayList<>());
         //liitostaulu sotkee JSON-datan välityksen javascriptille, yllä tyhjennetään se
         List<WepaTweetter> listOfTweetters = new ArrayList<>();
-        listOfTweetters.add(this.wepaTweetterRepository.findByUsername(searchterm));
+        WepaTweetter foundTweetter = this.wepaTweetterRepository.findByUsername(searchterm);
+        if (foundTweetter != null) {
+            listOfTweetters.add(foundTweetter);
+        } else {
+            listOfTweetters.add(new WepaTweetter());
+        }
+        System.out.println("koko on: " + listOfTweetters.size());
+        System.out.println(listOfTweetters.get(0));
         return listOfTweetters;
     }
     
