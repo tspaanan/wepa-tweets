@@ -1,5 +1,6 @@
 package projekti;
 
+import java.io.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author tspaanan
  */
 @Component
-@Profile("development")
+@Profile("developmentNOT")
 public class TestDataComponent implements ApplicationRunner {
     private WepaTweetterRepository wepaTweetterRepository;
     
@@ -27,7 +28,11 @@ public class TestDataComponent implements ApplicationRunner {
     @Override
     //@Transactional //add later
     public void run(ApplicationArguments args) {
-        this.wepaTweetterRepository.deleteAll();
+        //this.wepaTweetterRepository.deleteAll();
+        //deleteAll() ei toimi, koska CASCADE-optiot ei aktivoidu
+        System.out.println(System.getProperty("user.dir"));
+        //File oldDb = new File("database.mv.db");
+        //oldDb.delete();
         for (int i = 1; i < 10; i++) {
             WepaTweetter newTweetter = new WepaTweetter();
             newTweetter.setUsername("user" + i);

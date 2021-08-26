@@ -1,5 +1,6 @@
 package projekti;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class DefaultController {
     
     @Autowired
     private WepaTweetterRepository wepaTweetterRepository;
+    
+    @Autowired
+    private WepaFollowerRepository wepaFollowerRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -62,8 +66,11 @@ public class DefaultController {
     public String tweetter(Model model, @PathVariable String random) {
         WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
         model.addAttribute("tweetter", tweetter);
-        List<WepaTweetter> tweettersFollowed = tweetter.getFollowing();
+        List<WepaFollower> tweettersFollowed = tweetter.getFollowing();
         model.addAttribute("tweettersFollowed", tweettersFollowed);
+        //List<WepaFollower> tweettersFollowedBy = tweetter.getFollowingBy();
+        List<WepaFollower> tweettersFollowedBy = this.wepaFollowerRepository.findByFollowed(tweetter);
+        model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
         return "tweetter";
     }
     
@@ -82,12 +89,14 @@ public class DefaultController {
         List<WepaTweetter> listOfTweetters = new ArrayList<>();
         WepaTweetter foundTweetter = this.wepaTweetterRepository.findByUsername(searchterm);
         if (foundTweetter != null) {
+            //foundTweetter.setFollowing(new ArrayList<WepaFollower>());
+            //foundTweetter.setFollowingBy(new ArrayList<WepaFollower>());
             listOfTweetters.add(foundTweetter);
         } else {
             listOfTweetters.add(new WepaTweetter());
         }
         System.out.println("koko on: " + listOfTweetters.size());
-        System.out.println(listOfTweetters.get(0));
+        //System.out.println(listOfTweetters.get(0));
         return listOfTweetters;
     }
     
@@ -104,13 +113,40 @@ public class DefaultController {
         //UserDetails user = this.userDetailsService.loadUserByUsername(username);
         //kokonaista Useria ei ehkä tarvitakaan?
         WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        if (user.equals(followed) || user.getFollowing().contains(followed)) {
+        if (user.equals(followed)) {
+            System.out.println("same hit");
             return new WepaTweetter();
         }
-        user.getFollowing().add(followed);
-        return this.wepaTweetterRepository.save(user);
-        //return true; //palauttaa 500 vastauksen
-        //return false, in case blocklist prevents following
+        //System.out.println("userin listan pituus on: " + user.getFollowing().size());
+        //for (WepaFollower w : user.getFollowing()) {
+        //    System.out.println("verratta: " + w.getFollowed().getUsername());
+        //    System.out.println("kohde: " + followed.getUsername());
+        //    if (w.getFollowed().equals(followed)) {
+        //        System.out.println("existing hit");
+        //        return new WepaTweetter();
+        //    }
+        //}
+        //täytyy korvata yläpuolen tarkistus seuraavalla:
+        if (this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user) != null) {
+            return new WepaTweetter();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        WepaFollower newFollower = new WepaFollower(followed, user, now);
+        this.wepaFollowerRepository.save(newFollower);
+        //WepaFollower newFollowedBy = new WepaFollower(user, now);
+        //this.wepaFollowerRepository.save(newFollowedBy);
+        //record WepaFollower both to the one who follows and the one being followed
+        //followed.getFollowingBy().add(newFollowedBy);
+        //this.wepaTweetterRepository.save(followed);
+        //followed.getFollowingBy().add(newFollower);
+        //this.wepaTweetterRepository.save(followed);
+        user.getFollowing().add(newFollower);
+        System.out.println("tällä listan pituus on: " + user.getFollowing().size());
+        this.wepaTweetterRepository.save(user);
+        System.out.println("tällä listan pituus on: " + user.getFollowing().size());
+        //user.setFollowing(new ArrayList<WepaFollower>());
+        //user.setFollowingBy(new ArrayList<WepaFollower>());
+        return user;
     }
     
 }

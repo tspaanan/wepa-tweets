@@ -55,7 +55,9 @@ public class DefaultControllerTest {
     
     @After
     public void tearDown() {
-        this.wepaTweetterRepository.deleteAll();
+        //this.wepaTweetterRepository.deleteAll();
+        this.wepaTweetterRepository.delete(newTweetter);
+        this.wepaTweetterRepository.delete(otherTweetter);
     }
 
     // TODO add test methods here.

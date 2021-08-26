@@ -15,13 +15,35 @@
                 <div class="col-10">
                     USER PAGE
                     <p th:text="${tweetter.username}">username</p>
-                    <table>
-                        <tr>
-                            <th>Tweetters you are following:</th>
-                        </tr>
-                        <tr th:each="followed : ${tweettersFollowed}">
-                            <td th:text="${followed.username}">username</td>
-                        </tr>
+                    <h1>Tweetters you are following:</h1>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">username</th>
+                                <th scope="col">start of following</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="followed : ${tweettersFollowed}">
+                                <td th:text="${followed.followed.username}">username</td>
+                                <td th:text="${#temporals.formatISO(followed.startFollowing)}">date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h1>Tweetters who are following you:</h1>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">username</th>
+                                <th scope="col">start of following</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="followedBy : ${tweettersFollowedBy}">
+                                <td th:text="${followedBy.followed.username}">username</td>
+                                <td th:text="${#temporals.formatISO(followedBy.startFollowing)}">date</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
