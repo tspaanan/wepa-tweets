@@ -132,6 +132,12 @@ public class DefaultController {
         if (this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user) != null) {
             return new WepaTweetter();
         }
+        
+        //check blocklist
+        if (followed.getBlocked().contains(user) || user.getBlocked().contains(followed)) {
+            return new WepaTweetter();
+        }
+        
         LocalDateTime now = LocalDateTime.now();
         WepaFollower newFollower = new WepaFollower(followed, user, now);
         this.wepaFollowerRepository.save(newFollower);
@@ -151,6 +157,39 @@ public class DefaultController {
         //user.setFollowing(new ArrayList<WepaFollower>());
         //user.setFollowingBy(new ArrayList<WepaFollower>());
         return user;
+    }
+    
+    @PostMapping("/unfollow")
+    public String unfollow(@RequestParam String returnToUnfollow, @RequestParam String unfollow) {
+        WepaTweetter followed = this.wepaTweetterRepository.findByUsername(unfollow);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user);
+        this.wepaFollowerRepository.delete(unfollowed);
+        return "redirect:/wepa-tweetter/" + returnToUnfollow;
+    }
+    
+    @PostMapping("/block")
+    public String block(@RequestParam String returnToBlock, @RequestParam String block) {
+        //ajatus: lisätään blokkilistaan, sitten kutsutaan unfollow()
+        //joka poistaa seuraamisen (ja blokkilista estää uudestaan lisäämisen)
+        //ei toimi, täytyy muutenkin eriyttää erillinen @Service-palvelu
+        WepaTweetter blocked = this.wepaTweetterRepository.findByUsername(block);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        user.getBlocked().add(blocked);
+        this.wepaTweetterRepository.save(user);
+        WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(blocked, user);
+        WepaFollower unfollowedMirror = this.wepaFollowerRepository.findByFollowedAndFollowedBy(user, blocked);
+        if (unfollowed != null) {
+            this.wepaFollowerRepository.delete(unfollowed);
+        }
+        if (unfollowedMirror != null) {
+            this.wepaFollowerRepository.delete(unfollowedMirror);
+        }
+        return "redirect:/wepa-tweetter/" + returnToBlock;
     }
     
 }

@@ -36,6 +36,9 @@ public class WepaTweetter extends AbstractPersistable<Long> {
     @JsonIgnore
     @OneToMany(mappedBy = "followedBy")
     private List<WepaFollower> followingBy = new ArrayList<>(); //nämä seuraavat
+    @JsonIgnore
+    @OneToMany
+    private List<WepaTweetter> blocked = new ArrayList<>();
     
     @Override
     public boolean equals(Object other) {
