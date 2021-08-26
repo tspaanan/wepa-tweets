@@ -26,6 +26,10 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Username " + username + " not found!");
         }
         return new User(tweetter.getUsername(), tweetter.getPassword(),
-                        Arrays.asList(new SimpleGrantedAuthority("USER")));
+                        //Arrays.asList(new SimpleGrantedAuthority("USER"),
+                        //        new SimpleGrantedAuthority(tweetter.getUsername()),
+                        //        new SimpleGrantedAuthority("TESTI")));
+                        //jostain syystä sec:authorize=hasAuthority() pystyy lukemaan vain 1. authorityä
+                        Arrays.asList(new SimpleGrantedAuthority(tweetter.getRandom())));
     }
 }
