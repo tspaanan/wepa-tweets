@@ -1,6 +1,7 @@
 package projekti;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,13 +14,16 @@ import org.springframework.stereotype.Component;
  * @author tspaanan
  */
 @Component
-@Profile("developmentNOT")
+@Profile("development")
 public class TestDataComponent implements ApplicationRunner {
     private WepaTweetterRepository wepaTweetterRepository;
+    private WepaFollowerRepository wepaFollowerRepository;
     
     @Autowired
-    public TestDataComponent(WepaTweetterRepository wepaTweetterRepository) {
+    public TestDataComponent(WepaTweetterRepository wepaTweetterRepository,
+            WepaFollowerRepository wepaFollowerRepository) {
         this.wepaTweetterRepository = wepaTweetterRepository;
+        this.wepaFollowerRepository = wepaFollowerRepository;
     }
     
     @Autowired
@@ -42,6 +46,18 @@ public class TestDataComponent implements ApplicationRunner {
             newTweetter.setPassword(this.passwordEncoder.encode(newTweetter.getPassword()));
             this.wepaTweetterRepository.save(newTweetter);
         }
+        WepaFollower follower1 = new WepaFollower(this.wepaTweetterRepository.findByUsername("user2"),
+                this.wepaTweetterRepository.findByUsername("user1"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower1);
+        WepaFollower follower2 = new WepaFollower(this.wepaTweetterRepository.findByUsername("user1"),
+                this.wepaTweetterRepository.findByUsername("user2"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower2);
+        WepaFollower follower3 = new WepaFollower(this.wepaTweetterRepository.findByUsername("user3"),
+                this.wepaTweetterRepository.findByUsername("user2"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower3);
+        WepaFollower follower4 = new WepaFollower(this.wepaTweetterRepository.findByUsername("user4"),
+                this.wepaTweetterRepository.findByUsername("user1"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower4);
     }
 
 }

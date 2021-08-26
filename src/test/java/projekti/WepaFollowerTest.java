@@ -41,6 +41,7 @@ public class WepaFollowerTest {
         newTweetter.setRealname("realName");
         newTweetter.setRandom("string");
         this.wepaTweetterRepository.save(newTweetter);
+        this.wepaTweetterRepository.save(followedByTweetter);
     }
     
     @After
@@ -52,6 +53,7 @@ public class WepaFollowerTest {
     }
 
     private WepaTweetter newTweetter = new WepaTweetter();
+    private WepaTweetter followedByTweetter = new WepaTweetter();
 
     @Autowired
     private WepaTweetterRepository wepaTweetterRepository;
@@ -62,7 +64,7 @@ public class WepaFollowerTest {
     @Test
     public void wepaFollowerEncapsulatesWepaTweetter() {
         this.wepaFollowerRepository.save(new WepaFollower(
-                this.newTweetter,new WepaTweetter(),LocalDateTime.now()));
+                this.newTweetter,followedByTweetter,LocalDateTime.now()));
         List<WepaFollower> testFollower = this.wepaFollowerRepository.findByFollowed(this.newTweetter);
         this.wepaFollowerRepository.delete(testFollower.get(0));
         assertEquals("testUser", testFollower.get(0).getFollowed().getUsername());

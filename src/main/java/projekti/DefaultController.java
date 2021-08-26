@@ -66,10 +66,12 @@ public class DefaultController {
     public String tweetter(Model model, @PathVariable String random) {
         WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
         model.addAttribute("tweetter", tweetter);
-        List<WepaFollower> tweettersFollowed = tweetter.getFollowing();
+        List<WepaFollower> tweettersFollowed = tweetter.getFollowingBy();
         model.addAttribute("tweettersFollowed", tweettersFollowed);
         //List<WepaFollower> tweettersFollowedBy = tweetter.getFollowingBy();
-        List<WepaFollower> tweettersFollowedBy = this.wepaFollowerRepository.findByFollowed(tweetter);
+        //List<WepaFollower> tweettersFollowedBy = this.wepaFollowerRepository.findByFollowed(tweetter);
+        //model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
+        List<WepaFollower> tweettersFollowedBy = tweetter.getFollowing();
         model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
         return "tweetter";
     }
@@ -133,6 +135,8 @@ public class DefaultController {
         LocalDateTime now = LocalDateTime.now();
         WepaFollower newFollower = new WepaFollower(followed, user, now);
         this.wepaFollowerRepository.save(newFollower);
+        //ilmeisesti tämä tallennus riittää?
+        
         //WepaFollower newFollowedBy = new WepaFollower(user, now);
         //this.wepaFollowerRepository.save(newFollowedBy);
         //record WepaFollower both to the one who follows and the one being followed
@@ -140,9 +144,9 @@ public class DefaultController {
         //this.wepaTweetterRepository.save(followed);
         //followed.getFollowingBy().add(newFollower);
         //this.wepaTweetterRepository.save(followed);
-        user.getFollowing().add(newFollower);
+        //user.getFollowing().add(newFollower);
         System.out.println("tällä listan pituus on: " + user.getFollowing().size());
-        this.wepaTweetterRepository.save(user);
+        //this.wepaTweetterRepository.save(user);
         System.out.println("tällä listan pituus on: " + user.getFollowing().size());
         //user.setFollowing(new ArrayList<WepaFollower>());
         //user.setFollowingBy(new ArrayList<WepaFollower>());

@@ -1,5 +1,6 @@
 package projekti;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,17 +41,22 @@ public class FunctionalTest extends org.fluentlenium.adapter.junit.FluentTest {
     
     @Before
     public void setUp() {
+        newTweetter.setUsername("testUser");
+        newTweetter.setPassword("password");
+        newTweetter.setRealname("realName");
+        newTweetter.setRandom("string");
+        this.wepaTweetterRepository.save(newTweetter);
+        otherTweetter.setUsername("otherUser");
+        this.wepaTweetterRepository.save(otherTweetter);
+        thirdTweetter.setUsername("thirdUser");
+        this.wepaTweetterRepository.save(thirdTweetter);
     }
     
     @After
     public void tearDown() {
+        this.wepaTweetterRepository.delete(newTweetter);
+        this.wepaTweetterRepository.delete(otherTweetter);
     }
-
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
     
     @LocalServerPort
     private Integer port;
@@ -59,10 +65,28 @@ public class FunctionalTest extends org.fluentlenium.adapter.junit.FluentTest {
     private WepaTweetterRepository wepaTweetterRepository;
     
     @Autowired
+    private WepaFollowerRepository wepaFollowerRepository;
+    
+    @Autowired
     private DefaultController defaultController;
     
+    private WepaTweetter newTweetter = new WepaTweetter();
+    private WepaTweetter otherTweetter = new WepaTweetter();
+    private WepaTweetter thirdTweetter = new WepaTweetter();
+    
     @Test
-    public void stillNoLiveTests() {
+    public void allFollowersAreDisplayed() {
+        WepaFollower follower1 = new WepaFollower(this.wepaTweetterRepository.findByUsername("otherUser"),
+                this.wepaTweetterRepository.findByUsername("testUser"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower1);
+        WepaFollower follower2 = new WepaFollower(this.wepaTweetterRepository.findByUsername("thirdUser"),
+                this.wepaTweetterRepository.findByUsername("testUser"),LocalDateTime.now());
+        this.wepaFollowerRepository.save(follower2);
+        goTo("http://localhost:" + port + "/wepa-tweetter/string");
+        this.wepaFollowerRepository.delete(follower1);
+        this.wepaFollowerRepository.delete(follower2);
+        assertTrue(pageSource().contains("otherUser"));
+        assertTrue(pageSource().contains("thirdUser"));        
     }
         
     //this test needs either

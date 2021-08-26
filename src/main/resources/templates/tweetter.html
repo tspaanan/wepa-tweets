@@ -26,7 +26,7 @@
                         <tbody>
                             <tr th:each="followed : ${tweettersFollowed}">
                                 <td th:text="${followed.followed.username}">username</td>
-                                <td th:text="${#temporals.formatISO(followed.startFollowing)}">date</td>
+                                <td th:text="${#temporals.format(followed.startFollowing, 'dd-MM-yyyy HH:mm')}">date</td>
                             </tr>
                         </tbody>
                     </table>
@@ -40,8 +40,8 @@
                         </thead>
                         <tbody>
                             <tr th:each="followedBy : ${tweettersFollowedBy}">
-                                <td th:text="${followedBy.followed.username}">username</td>
-                                <td th:text="${#temporals.formatISO(followedBy.startFollowing)}">date</td>
+                                <td th:text="${followedBy.followedBy.username}">username</td>
+                                <td th:text="${#temporals.format(followedBy.startFollowing, 'dd-MM-yyyy HH:mm')}">date</td>
                             </tr>
                         </tbody>
                     </table>
