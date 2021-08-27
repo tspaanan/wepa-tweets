@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -102,6 +105,8 @@ public class DefaultController {
         return listOfTweetters;
     }
     
+    @PostAuthorize("returnObject.username == authentication.principal.username")
+    //tämän toimivuus on 50-50, täytyy vielä testata
     @ResponseBody
     @GetMapping("/follow")
     public WepaTweetter follow(@RequestParam String follow) {
@@ -159,6 +164,7 @@ public class DefaultController {
         return user;
     }
     
+    @PreAuthorize("#returnToUnfollow == authentication.principal.random")
     @PostMapping("/unfollow")
     public String unfollow(@RequestParam String returnToUnfollow, @RequestParam String unfollow) {
         WepaTweetter followed = this.wepaTweetterRepository.findByUsername(unfollow);
@@ -170,6 +176,7 @@ public class DefaultController {
         return "redirect:/wepa-tweetter/" + returnToUnfollow;
     }
     
+    @PreAuthorize("#returnToBlock == authentication.principal.random")
     @PostMapping("/block")
     public String block(@RequestParam String returnToBlock, @RequestParam String block) {
         //ajatus: lisätään blokkilistaan, sitten kutsutaan unfollow()

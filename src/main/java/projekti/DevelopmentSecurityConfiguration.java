@@ -33,6 +33,8 @@ public class DevelopmentSecurityConfiguration extends WebSecurityConfigurerAdapt
         http.authorizeRequests()
                 .antMatchers("/h2-console", "/h2-console/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/").permitAll()
+                .antMatchers("/javascript/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/search").permitAll()
                 .anyRequest().authenticated().and()
                 .formLogin().permitAll().and()
                 .logout().permitAll();
