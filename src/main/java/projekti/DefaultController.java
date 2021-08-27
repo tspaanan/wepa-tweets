@@ -1,9 +1,15 @@
 package projekti;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.tools.FileObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class DefaultController {
@@ -29,6 +36,9 @@ public class DefaultController {
     
     @Autowired
     private WepaFollowerRepository wepaFollowerRepository;
+    
+    @Autowired
+    private PublicImageObjectRepository publicImageObjectRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -77,6 +87,27 @@ public class DefaultController {
         List<WepaFollower> tweettersFollowedBy = tweetter.getFollowing();
         model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
         return "tweetter";
+    }
+    
+    @GetMapping("/wepa-tweetter/{random}/album")
+    public String album(Model model, @PathVariable String random) {
+        WepaTweetter owner = this.wepaTweetterRepository.findByRandom(random);
+        List<PublicImageObject> images = this.publicImageObjectRepository.findByOwner(owner);
+        model.addAttribute("count", images.size());
+        model.addAttribute("images", images);
+        return "album";
+    }
+    
+    //@GetMapping(path = "/images/{id}", produces = "image/gif")
+    @ResponseBody
+    @GetMapping("/images/{id}")
+    public ResponseEntity<byte[]> returnImage(@PathVariable Long id) {
+        PublicImageObject publicImageObject = this.publicImageObjectRepository.getOne(id);
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(publicImageObject.getMediaType()));
+        ResponseEntity<byte[]> returnedImage = new ResponseEntity<>(publicImageObject.getImageContent(),
+                                                headers, HttpStatus.CREATED);
+        return returnedImage;
     }
     
     //@PostMapping("/search")
@@ -197,6 +228,33 @@ public class DefaultController {
             this.wepaFollowerRepository.delete(unfollowedMirror);
         }
         return "redirect:/wepa-tweetter/" + returnToBlock;
+    }
+    
+    @Secured("USER")
+    @PostMapping("/addimage")
+    public String addImage(@RequestParam("image") MultipartFile image, @RequestParam("description") String description) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        if (this.publicImageObjectRepository.findByOwner(user).size() < 10) {
+            PublicImageObject publicImageObject = new PublicImageObject();
+            publicImageObject.setMediaType(image.getContentType());
+            publicImageObject.setDescription(description);
+            publicImageObject.setImageContent(image.getBytes());
+            publicImageObject.setOwner(user);
+        this.publicImageObjectRepository.save(publicImageObject);
+        }
+        return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
+    }
+    
+    @PreAuthorize("#removeOwner == authentication.principal.username")
+    @PostMapping("/removeimage")
+    public String removeImage(@RequestParam String removeOwner, @RequestParam String imageId) {
+        this.publicImageObjectRepository.deleteById(Long.parseLong(imageId));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
     }
     
 }

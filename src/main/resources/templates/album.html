@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/layout :: head">
+        <meta charset="UTF-8" />
+        <title th:title="wepa-tweetter-album: +${tweetter.usename}">wepa-tweetter</title>
+    </head>
+    <body>
+        <div th:replace="fragments/layout :: header"></div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    <div th:replace="fragments/layout :: sidebar"></div>
+                </div>
+                <div class="col-10">
+                    ALBUM
+                    <div th:text="${count}+'/10'">0/10</div>
+                    <ul class="list-unstyled">
+                        <li th:each="image : ${images}" class="media">
+                            <img th:src="@{/images/{id}(id=${image.id})}" class="mr-3" th:alt="'personal image of ' + ${image.owner.username}" width="200" height="auto" />
+                            <div class="media-body">
+                                <h5 class="mt-0 mb-1" th:text="${image.description}">description</h5>
+                                <form th:action="@{/removeimage}" method="POST">
+                                    <input type="hidden" name="removeOwner" th:value="${image.owner.username}" />
+                                    <input type="hidden" name="imageId" th:value="${image.id}" />
+                                    <input type="submit" class="btn btn-primary" value="Remove" />
+                                </form>
+                            </div>
+                        </li>
+                    </ul>
+                    <th:block th:switch="${count}">
+                        <div th:case="'10'">
+                            <h1>Album full</h1>
+                        </div>
+                        <div th:case="*">
+                            <form th:action="@{/addimage}" method="POST" enctype="multipart/form-data">
+                                <input type="text" name="description" />
+                                <input type="file" name="image" />
+                                <input type="submit" value="Add new image" />
+                            </form>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

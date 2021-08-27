@@ -35,6 +35,9 @@ public class DevelopmentSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .antMatchers(HttpMethod.GET,"/").permitAll()
                 .antMatchers("/javascript/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/search").permitAll()
+                .antMatchers("/register").permitAll()
+                .antMatchers("/wepa-tweetter/**").permitAll()
+                .antMatchers("/images/**").permitAll()
                 .anyRequest().authenticated().and()
                 .formLogin().permitAll().and()
                 .logout().permitAll();

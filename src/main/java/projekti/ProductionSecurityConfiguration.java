@@ -26,6 +26,7 @@ public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapte
                 .antMatchers(HttpMethod.GET,"/").permitAll()
                 .antMatchers("/javascript/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/search").permitAll()
+                .antMatchers("/register").permitAll()
                 .anyRequest().authenticated().and()
                 .formLogin().permitAll().and()
                 .logout().permitAll();

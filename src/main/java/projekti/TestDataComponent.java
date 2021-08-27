@@ -1,6 +1,10 @@
 package projekti;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -8,6 +12,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  *
@@ -18,12 +24,15 @@ import org.springframework.stereotype.Component;
 public class TestDataComponent implements ApplicationRunner {
     private WepaTweetterRepository wepaTweetterRepository;
     private WepaFollowerRepository wepaFollowerRepository;
+    private PublicImageObjectRepository publicImageObjectRepository;
     
     @Autowired
     public TestDataComponent(WepaTweetterRepository wepaTweetterRepository,
-            WepaFollowerRepository wepaFollowerRepository) {
+            WepaFollowerRepository wepaFollowerRepository,
+            PublicImageObjectRepository publicImageObjectRepository) {
         this.wepaTweetterRepository = wepaTweetterRepository;
         this.wepaFollowerRepository = wepaFollowerRepository;
+        this.publicImageObjectRepository = publicImageObjectRepository;
     }
     
     @Autowired
@@ -31,7 +40,7 @@ public class TestDataComponent implements ApplicationRunner {
     
     @Override
     //@Transactional //add later
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws Exception {
         //this.wepaTweetterRepository.deleteAll();
         //deleteAll() ei toimi, koska CASCADE-optiot ei aktivoidu
         System.out.println(System.getProperty("user.dir"));
@@ -58,6 +67,16 @@ public class TestDataComponent implements ApplicationRunner {
         WepaFollower follower4 = new WepaFollower(this.wepaTweetterRepository.findByUsername("user4"),
                 this.wepaTweetterRepository.findByUsername("user1"),LocalDateTime.now());
         this.wepaFollowerRepository.save(follower4);
+        
+        Path imagePath = Paths.get("../../mooc-wepa-21/osa04-Osa04_01.GifBin/src/main/resources/public/img/bananas.gif");
+        byte[] imageBytes = Files.readAllBytes(imagePath);
+        PublicImageObject publicImageObject = new PublicImageObject();
+        publicImageObject.setMediaType("image/gif");
+        publicImageObject.setDescription("banana");
+        publicImageObject.setImageContent(imageBytes);
+        WepaTweetter user1 = this.wepaTweetterRepository.findByUsername("user1");
+        publicImageObject.setOwner(user1);
+        this.publicImageObjectRepository.save(publicImageObject);
     }
 
 }
