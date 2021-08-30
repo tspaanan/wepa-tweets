@@ -14,8 +14,11 @@
                 </div>
                 <div class="col-10">
                     USER PAGE
-                    <p th:text="${tweetter.username}">username</p>
-                    <p th:text="${tweetter.random}">debug</p>
+                    <ul class="list-unstyled">
+                        <!<li><span th:text="${tweetter.username}">username</span><img th:if="${tweetter.profileImage != null}" th:src="@{/images/{id}(id=${tweetter.profileImage.id})}" class="mr-3" th:alt="'profile image of ' + ${tweetter.username}" width="200" height="auto" style="margin-left: 10px" /></li>
+                        <li><span th:text="${tweetter.random}">debug</span></li>
+                        <li><a th:href="@{/wepa-tweetter/__${tweetter.random}__/album}">Link to image album</a></li>
+                    </ul>
                     <section th:if="${#authorization.expression('hasAuthority('''+tweetter.random+''')')}">
                         <h1>Tweetters you are following:</h1>
                         <table class="table">

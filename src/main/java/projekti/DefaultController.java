@@ -92,6 +92,7 @@ public class DefaultController {
     @GetMapping("/wepa-tweetter/{random}/album")
     public String album(Model model, @PathVariable String random) {
         WepaTweetter owner = this.wepaTweetterRepository.findByRandom(random);
+        model.addAttribute("owner", owner);
         List<PublicImageObject> images = this.publicImageObjectRepository.findByOwner(owner);
         model.addAttribute("count", images.size());
         model.addAttribute("images", images);
@@ -255,6 +256,16 @@ public class DefaultController {
         String username = auth.getName();
         WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
         return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
+    }
+    
+    @PreAuthorize("#profileOwner == authentication.principal.username")
+    @PostMapping("setprofile")
+    public String setProfileImage(@RequestParam String profileOwner, @RequestParam String profileId) {
+        PublicImageObject newProfileImage = this.publicImageObjectRepository.findById(Long.parseLong(profileId)).get();
+        WepaTweetter tweetter = this.wepaTweetterRepository.findByUsername(profileOwner);
+        tweetter.setProfileImage(newProfileImage);
+        this.wepaTweetterRepository.save(tweetter);
+        return "redirect:/wepa-tweetter/" + tweetter.getRandom();
     }
     
 }

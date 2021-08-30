@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface PublicImageObjectRepository extends JpaRepository<PublicImageObject, Long> {
     List<PublicImageObject> findByOwner(WepaTweetter owner);
+    
 }

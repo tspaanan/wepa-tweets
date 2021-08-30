@@ -20,26 +20,41 @@
                             <img th:src="@{/images/{id}(id=${image.id})}" class="mr-3" th:alt="'personal image of ' + ${image.owner.username}" width="200" height="auto" />
                             <div class="media-body">
                                 <h5 class="mt-0 mb-1" th:text="${image.description}">description</h5>
-                                <form th:action="@{/removeimage}" method="POST">
-                                    <input type="hidden" name="removeOwner" th:value="${image.owner.username}" />
-                                    <input type="hidden" name="imageId" th:value="${image.id}" />
-                                    <input type="submit" class="btn btn-primary" value="Remove" />
-                                </form>
+                                <section th:if="${#authorization.expression('hasAuthority('''+owner.random+''')')}">
+                                    <div class="form-group">
+                                        <form th:action="@{/removeimage}" method="POST">
+                                            <input type="hidden" name="removeOwner" th:value="${image.owner.username}" />
+                                            <input type="hidden" name="imageId" th:value="${image.id}" />
+                                            <input type="submit" class="btn btn-primary" value="Remove" />
+                                        </form>
+                                    </div>
+                                    <div class="form-group">
+                                        <form th:action="@{/setprofile}" method="POST">
+                                            <input type="hidden" name="profileOwner" th:value="${image.owner.username}" />
+                                            <input type="hidden" name="profileId" th:value="${image.id}" />
+                                            <input type="submit" class="btn btn-primary" value="Set as profile picture" />
+                                        </form>
+                                    </div>
+                                </section>
                             </div>
                         </li>
                     </ul>
-                    <th:block th:switch="${count}">
-                        <div th:case="'10'">
-                            <h1>Album full</h1>
-                        </div>
-                        <div th:case="*">
-                            <form th:action="@{/addimage}" method="POST" enctype="multipart/form-data">
-                                <input type="text" name="description" />
-                                <input type="file" name="image" />
-                                <input type="submit" value="Add new image" />
-                            </form>
-                        </div>
-                    </th:block>
+                    <section th:if="${#authorization.expression('hasAuthority('''+owner.random+''')')}">
+                        <th:block th:switch="${count}">
+                            <div th:case="'10'">
+                                <h1>Album full</h1>
+                            </div>
+                            <div th:case="*">
+                                <div class="form-group">
+                                <form th:action="@{/addimage}" method="POST" enctype="multipart/form-data">
+                                    <input type="text" class="form-control" name="description" placeholder="Image description" />
+                                    <input type="file" class="form-control-file" style="margin-top: 10px" name="image" />
+                                    <input type="submit" class="btn btn-primary" style="margin-top: 10px" value="Add new image" />
+                                </form>
+                                </div>
+                            </div>
+                        </th:block>
+                    </section>
                 </div>
             </div>
         </div>

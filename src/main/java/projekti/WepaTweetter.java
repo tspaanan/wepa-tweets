@@ -9,6 +9,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,9 @@ public class WepaTweetter extends AbstractPersistable<Long> {
     @JsonIgnore
     @OneToMany
     private List<WepaTweetter> blocked = new ArrayList<>();
+    @JsonIgnore
+    @OneToOne
+    private PublicImageObject profileImage;
     
     @Override
     public boolean equals(Object other) {
