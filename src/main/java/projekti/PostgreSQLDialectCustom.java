@@ -8,6 +8,8 @@ import org.hibernate.type.descriptor.sql.SqlTypeDescriptor;
  *
  * @author tspaanan
  */
+
+//source: https://stackoverflow.com/posts/22182893/revisions
 public class PostgreSQLDialectCustom extends PostgreSQL82Dialect {
     
     @Override
