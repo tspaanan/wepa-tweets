@@ -1,4 +1,4 @@
 /target/
-database.mv.db
+database.*
 /nbproject/
 debugLog.txt
