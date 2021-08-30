@@ -27,6 +27,8 @@ public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapte
                 .antMatchers("/javascript/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/search").permitAll()
                 .antMatchers("/register").permitAll()
+                .antMatchers("/wepa-tweetter/**").permitAll()
+                .antMatchers("/images/**").permitAll()
                 .anyRequest().authenticated().and()
                 .formLogin().permitAll().and()
                 .logout().permitAll();
