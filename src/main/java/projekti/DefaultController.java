@@ -3,7 +3,9 @@ package projekti;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.tools.FileObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -40,6 +42,9 @@ public class DefaultController {
     
     @Autowired
     private PublicImageObjectRepository publicImageObjectRepository;
+    
+    @Autowired
+    private WepaMessageRepository wepaMessageRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -80,8 +85,17 @@ public class DefaultController {
     public String tweetter(Model model, @PathVariable String random) {
         WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
         model.addAttribute("tweetter", tweetter);
+        List<WepaMessage> messages = this.wepaMessageRepository.findByTweetter(tweetter); //haetaan vielä kaikki viestit
+        model.addAttribute("messages", messages);
         List<WepaFollower> tweettersFollowed = tweetter.getFollowingBy();
         model.addAttribute("tweettersFollowed", tweettersFollowed);
+        List<WepaTweetter> followedTweetters = tweettersFollowed.stream().map((follower) -> follower.getFollowed()).collect(Collectors.toCollection(ArrayList::new));
+        List<WepaMessage> followedMessages= this.wepaMessageRepository.findByTweetterIn(followedTweetters);
+        //debug:
+        for (WepaMessage mes : followedMessages) {
+            System.out.println(mes.getMessageContent());
+        }
+        model.addAttribute("followedMessages", followedMessages);
         //List<WepaFollower> tweettersFollowedBy = tweetter.getFollowingBy();
         //List<WepaFollower> tweettersFollowedBy = this.wepaFollowerRepository.findByFollowed(tweetter);
         //model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
@@ -247,6 +261,17 @@ public class DefaultController {
         this.publicImageObjectRepository.save(publicImageObject);
         }
         return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
+    }
+    
+    @Secured("USER")
+    @PostMapping("/newmessage")
+    public String newMessage(@RequestParam String message) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message);
+        this.wepaMessageRepository.save(newMessage);
+        return "redirect:/wepa-tweetter/" + user.getRandom();
     }
     
     @PreAuthorize("#removeOwner == authentication.principal.username")

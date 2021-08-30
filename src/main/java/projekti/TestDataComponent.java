@@ -25,14 +25,17 @@ public class TestDataComponent implements ApplicationRunner {
     private WepaTweetterRepository wepaTweetterRepository;
     private WepaFollowerRepository wepaFollowerRepository;
     private PublicImageObjectRepository publicImageObjectRepository;
+    private WepaMessageRepository wepaMessageRepository;
     
     @Autowired
     public TestDataComponent(WepaTweetterRepository wepaTweetterRepository,
             WepaFollowerRepository wepaFollowerRepository,
-            PublicImageObjectRepository publicImageObjectRepository) {
+            PublicImageObjectRepository publicImageObjectRepository,
+            WepaMessageRepository wepaMessageRepository) {
         this.wepaTweetterRepository = wepaTweetterRepository;
         this.wepaFollowerRepository = wepaFollowerRepository;
         this.publicImageObjectRepository = publicImageObjectRepository;
+        this.wepaMessageRepository = wepaMessageRepository;
     }
     
     @Autowired
@@ -68,6 +71,7 @@ public class TestDataComponent implements ApplicationRunner {
                 this.wepaTweetterRepository.findByUsername("user1"),LocalDateTime.now());
         this.wepaFollowerRepository.save(follower4);
         
+        //add test image
         Path imagePath = Paths.get("../../mooc-wepa-21/osa04-Osa04_01.GifBin/src/main/resources/public/img/bananas.gif");
         byte[] imageBytes = Files.readAllBytes(imagePath);
         PublicImageObject publicImageObject = new PublicImageObject();
@@ -77,6 +81,10 @@ public class TestDataComponent implements ApplicationRunner {
         WepaTweetter user1 = this.wepaTweetterRepository.findByUsername("user1");
         publicImageObject.setOwner(user1);
         this.publicImageObjectRepository.save(publicImageObject);
+        
+        //add test messages
+        WepaMessage message1 = new WepaMessage(user1,LocalDateTime.now(),"testiviesti #1");
+        this.wepaMessageRepository.save(message1);
     }
 
 }

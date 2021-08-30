@@ -24,7 +24,7 @@ public class PublicImageObject extends AbstractPersistable<Long> {
     
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Type(type="org.hibernate.type.BinaryType")
+    //@Type(type="org.hibernate.type.BinaryType") tämä varmistaa toiminnan Herokussa, hajottaa H2-tietokantamoottorin!
     private byte[] imageContent;
     @ManyToOne
     private WepaTweetter owner;

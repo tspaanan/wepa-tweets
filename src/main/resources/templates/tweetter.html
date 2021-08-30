@@ -13,14 +13,41 @@
                     <div th:replace="fragments/layout :: sidebar"></div>
                 </div>
                 <div class="col-10">
-                    USER PAGE
+                    <div class="row">
                     <ul class="list-unstyled">
-                        <!<li><span th:text="${tweetter.username}">username</span><img th:if="${tweetter.profileImage != null}" th:src="@{/images/{id}(id=${tweetter.profileImage.id})}" class="mr-3" th:alt="'profile image of ' + ${tweetter.username}" width="200" height="auto" style="margin-left: 10px" /></li>
+                        <li><span th:text="${tweetter.username}">username</span><img th:if="${tweetter.profileImage != null}" th:src="@{/images/{id}(id=${tweetter.profileImage.id})}" class="mr-3 img-thumbnail" th:alt="'profile image of ' + ${tweetter.username}" width="200" height="auto" style="margin-left: 10px" /></li>
                         <li><span th:text="${tweetter.random}">debug</span></li>
                         <li><a th:href="@{/wepa-tweetter/__${tweetter.random}__/album}">Link to image album</a></li>
                     </ul>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <ul class="list-unstyled">
+                                <li th:each="message : ${messages}">
+                                    <p th:text="${message.messageContent}">messageContent</p>
+                                    <p th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-5">
+                            <ul class="list-unstyled">
+                                <li th:each="followedMessage : ${followedMessages}">
+                                    <p th:text="${followedMessage.messageContent}">messageContent</p>
+                                    <p th:text="${#temporals.format(followedMessage.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <section th:if="${#authorization.expression('hasAuthority('''+tweetter.random+''')')}">
-                        <h1>Tweetters you are following:</h1>
+                        <h1>DASHBOARD:</h1>
+                        <h3>Post new message:</h3>
+                        <div class="form-group">
+                            <form th:action="@{/newmessage}" method="POST">
+                                <input type="text" class="form-control" name="message" placeholder="New message" />
+                                <input type="submit" class="btn btn-primary" style="margin-top: 10px" value="Add new message" />
+                            </form>
+                        </div>
+                        <h3>Tweetters you are following:</h3>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -49,7 +76,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <h1>Tweetters who are following you:</h1>
+                        <h3>Tweetters who are following you:</h3>
                         <table class="table">
                             <thead>
                                 <tr>
