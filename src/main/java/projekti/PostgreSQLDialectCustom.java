@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
  *
  * @author tspaanan
  */
-@Profile("production")
+@Profile("productionNOT")
 //source: https://www.javacodegeeks.com/2014/03/postgres-and-oracle-compatibility-with-hibernate.html
 public class PostgreSQLDialectCustom extends PostgreSQL82Dialect {
     
