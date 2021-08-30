@@ -25,6 +25,7 @@ public class PublicImageObject extends AbstractPersistable<Long> {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] imageContent;
+    //testing user_streams_for_binary in production.config
     @ManyToOne
     private WepaTweetter owner;
     private String description;
