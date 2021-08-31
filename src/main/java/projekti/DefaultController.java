@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import javax.tools.FileObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,7 +63,8 @@ public class DefaultController {
     
     @GetMapping("/")
     public String index(Model model) {
-        //kansoita etusivulla viimeisimmillä viesteillä
+        Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending());
+        model.addAttribute("messages", this.wepaMessageRepository.findAll(pageable));
         return "index";
     }
     
@@ -85,12 +89,13 @@ public class DefaultController {
     public String tweetter(Model model, @PathVariable String random) {
         WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
         model.addAttribute("tweetter", tweetter);
-        List<WepaMessage> messages = this.wepaMessageRepository.findByTweetter(tweetter); //haetaan vielä kaikki viestit
+        Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending()); //limit all queries to latest 25
+        List<WepaMessage> messages = this.wepaMessageRepository.findByTweetter(tweetter, pageable);
         model.addAttribute("messages", messages);
         List<WepaFollower> tweettersFollowed = tweetter.getFollowingBy();
         model.addAttribute("tweettersFollowed", tweettersFollowed);
         List<WepaTweetter> followedTweetters = tweettersFollowed.stream().map((follower) -> follower.getFollowed()).collect(Collectors.toCollection(ArrayList::new));
-        List<WepaMessage> followedMessages= this.wepaMessageRepository.findByTweetterIn(followedTweetters);
+        List<WepaMessage> followedMessages= this.wepaMessageRepository.findByTweetterIn(followedTweetters, pageable);
         //debug:
         for (WepaMessage mes : followedMessages) {
             System.out.println(mes.getMessageContent());

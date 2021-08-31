@@ -85,6 +85,12 @@ public class TestDataComponent implements ApplicationRunner {
         //add test messages
         WepaMessage message1 = new WepaMessage(user1,LocalDateTime.now(),"testiviesti #1");
         this.wepaMessageRepository.save(message1);
+        WepaMessage message2 = new WepaMessage(user1,LocalDateTime.now(),"testiviesti #2");
+        this.wepaMessageRepository.save(message2);
+        WepaMessage message3 = new WepaMessage(user1,LocalDateTime.now(),"testiviesti #3");
+        this.wepaMessageRepository.save(message3);
+        WepaMessage message4 = new WepaMessage(user1,LocalDateTime.now(),"testiviesti #4");
+        this.wepaMessageRepository.save(message4);
     }
 
 }

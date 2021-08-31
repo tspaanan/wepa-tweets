@@ -24,6 +24,7 @@
                         <div class="col-5">
                             <ul class="list-unstyled">
                                 <li th:each="message : ${messages}">
+                                    <h5 th:text="${message.tweetter.username} + ':'">username:</h5>
                                     <p th:text="${message.messageContent}">messageContent</p>
                                     <p th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
                                 </li>
@@ -32,6 +33,7 @@
                         <div class="col-5">
                             <ul class="list-unstyled">
                                 <li th:each="followedMessage : ${followedMessages}">
+                                    <h5 th:text="${followedMessage.tweetter.username} + ':'">username:</h5>
                                     <p th:text="${followedMessage.messageContent}">messageContent</p>
                                     <p th:text="${#temporals.format(followedMessage.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
                                 </li>
