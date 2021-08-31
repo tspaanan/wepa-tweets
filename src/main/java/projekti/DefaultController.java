@@ -274,9 +274,41 @@ public class DefaultController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message);
+        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message, new ArrayList<>());
         this.wepaMessageRepository.save(newMessage);
         return "redirect:/wepa-tweetter/" + user.getRandom();
+    }
+    
+    @Secured("USER")
+    @ResponseBody
+    @GetMapping("/likeimage")
+    public String likeImage(@RequestParam String like) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        PublicImageObject likedImage = this.publicImageObjectRepository.getOne(Long.parseLong(like));
+        if (likedImage.getLikes().contains(user)) {
+            return null;
+        }
+        likedImage.getLikes().add(user);
+        this.publicImageObjectRepository.save(likedImage);
+        return "ok";
+    }
+    
+    @Secured("USER")
+    @ResponseBody
+    @GetMapping("/likemessage")
+    public String likeMessage(@RequestParam String like) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaMessage likedImage = this.wepaMessageRepository.getOne(Long.parseLong(like));
+        if (likedImage.getLikes().contains(user)) {
+            return null;
+        }
+        likedImage.getLikes().add(user);
+        this.wepaMessageRepository.save(likedImage);
+        return "ok";
     }
     
     @PreAuthorize("#removeOwner == authentication.principal.username")

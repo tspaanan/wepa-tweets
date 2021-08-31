@@ -27,9 +27,13 @@
                     <h1>Latest messages:</h1>
                     <ul class="list-unstyled">
                         <li th:each="message : ${messages}">
-                            <h5 th:text="${message.tweetter.username} + ':'">username:</h5>
+                            <h5><a th:href="@{/wepa-tweetter/__${message.tweetter.random}__}" th:text="${message.tweetter.username}">username</a> says:</h5>
                             <p th:text="${message.messageContent}">messageContent</p>
                             <p th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                            <p th:id="'like' + ${message.id}" th:value="${#lists.size(message.likes)}" th:text="'Likes: ' + ${#lists.size(message.likes)}">0</p>
+                                    <section sec:authorize="isAuthenticated()">
+                                        <button class="btn btn-primary" th:id="'btn' + ${message.id}" th:onclick="'likeMessage(' + ${message.id} + ')'">Like</button>
+                                    </section>
                         </li>
                     </ul>
                 </div>

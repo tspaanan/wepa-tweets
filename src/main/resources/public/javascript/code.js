@@ -77,6 +77,55 @@ function follow(id) {
     xhttp.send()
 }
 
+function likeImage(id) {
+    var xhttp = new XMLHttpRequest()
+    xhttp.onload = function() {
+        if (this.responseText == "ok") {
+            //window.location.reload(true) //tämä toimii, lataa sivun uudestaan serveriltä
+            //debug:
+            //var likeElement = document.getElementById("like" + id)
+            //likeElement.appendChild(document.createTextNode("osuma"))
+            var countElement = document.getElementById("like" + id)
+            var countValue = countElement.getAttribute("value")
+            countValue++
+            //countElement.value = parseInt(countValue, 10) + 1
+            countElement.innerHTML = "Likes: " + countValue
+        } else {
+            var bodyElement = document.getElementById("body" + id)
+            var alertElement = document.createElement("div")
+            alertElement.className = "alert alert-danger"
+            alertElement.style = "margin-top: 10px"
+            alertElement.innerHTML = "Already liked!"
+            bodyElement.appendChild(alertElement)
+        }
+    }
+    var url = contextRoot + "likeimage"
+    xhttp.open("GET", url + "?like=" + id)
+    xhttp.send()
+}
+
+function likeMessage(id) {
+    var xhttp = new XMLHttpRequest()
+    xhttp.onload = function() {
+        if (this.responseText == "ok") {
+            var countElement = document.getElementById("like" + id)
+            var countValue = countElement.getAttribute("value")
+            countValue++
+            countElement.innerHTML = "Likes: " + countValue
+        } else {
+            var bodyElement = document.getElementById("btn" + id)
+            var alertElement = document.createElement("div")
+            alertElement.className = "alert alert-danger"
+            alertElement.style = "margin-top: 10px"
+            alertElement.innerHTML = "Already liked!"
+            bodyElement.appendChild(alertElement)
+        }
+    }
+    var url = contextRoot + "likemessage"
+    xhttp.open("GET", url + "?like=" + id)
+    xhttp.send()
+}
+
 function test() {
     alert("test")
 }

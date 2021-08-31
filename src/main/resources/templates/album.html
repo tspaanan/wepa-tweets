@@ -18,8 +18,12 @@
                     <ul class="list-unstyled">
                         <li th:each="image : ${images}" class="media">
                             <img th:src="@{/images/{id}(id=${image.id})}" class="mr-3" th:alt="'personal image of ' + ${image.owner.username}" width="200" height="auto" />
-                            <div class="media-body">
+                            <div class="media-body" th:id="'body' + ${image.id}">
                                 <h5 class="mt-0 mb-1" th:text="${image.description}">description</h5>
+                                <p th:id="'like' + ${image.id}" th:value="${#lists.size(image.likes)}" th:text="'Likes: ' + ${#lists.size(image.likes)}">0</p>
+                                <section sec:authorize="isAuthenticated()">
+                                    <button class="btn btn-primary" th:onclick="'likeImage(' + ${image.id} + ')'">Like</button>
+                                </section>
                                 <section th:if="${#authorization.expression('hasAuthority('''+owner.random+''')')}">
                                     <div class="form-group">
                                         <form th:action="@{/removeimage}" method="POST">
@@ -58,5 +62,7 @@
                 </div>
             </div>
         </div>
+        <script th:inline="javascript"> var contextRoot = /*[[@{/}]]*/ '';</script>
+        <script th:src="@{/javascript/code.js}" defer></script>
     </body>
 </html>

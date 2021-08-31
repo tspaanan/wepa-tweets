@@ -24,18 +24,25 @@
                         <div class="col-5">
                             <ul class="list-unstyled">
                                 <li th:each="message : ${messages}">
-                                    <h5 th:text="${message.tweetter.username} + ':'">username:</h5>
+                                    <h5 th:text="${message.tweetter.username} + ' says:'">username:</h5>
                                     <p th:text="${message.messageContent}">messageContent</p>
                                     <p th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                    <p th:id="'like' + ${message.id}" th:value="${#lists.size(message.likes)}" th:text="'Likes: ' + ${#lists.size(message.likes)}">0</p>
+                                    <section sec:authorize="isAuthenticated()">
+                                        <button class="btn btn-primary" th:id="'btn' + ${message.id}" th:onclick="'likeMessage(' + ${message.id} + ')'">Like</button>
+                                    </section>
                                 </li>
                             </ul>
                         </div>
                         <div class="col-5">
                             <ul class="list-unstyled">
                                 <li th:each="followedMessage : ${followedMessages}">
-                                    <h5 th:text="${followedMessage.tweetter.username} + ':'">username:</h5>
-                                    <p th:text="${followedMessage.messageContent}">messageContent</p>
+                                    <h5><a th:href="@{/wepa-tweetter/__${followedMessage.tweetter.random}__}" th:text="${followedMessage.tweetter.username}">username</a> says:</h5>                                    <p th:text="${followedMessage.messageContent}">messageContent</p>
                                     <p th:text="${#temporals.format(followedMessage.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                    <p th:id="'like' + ${followedMessage.id}" th:value="${#lists.size(followedMessage.likes)}" th:text="'Likes: ' + ${#lists.size(followedMessage.likes)}">0</p>
+                                    <section sec:authorize="isAuthenticated()">
+                                        <button class="btn btn-primary" th:id="'btn' + ${followedMessage.id}" th:onclick="'likeMessage(' + ${followedMessage.id} + ')'">Like</button>
+                                    </section>
                                 </li>
                             </ul>
                         </div>
@@ -104,5 +111,7 @@
                 </div>
             </div>
         </div>
+        <script th:inline="javascript"> var contextRoot = /*[[@{/}]]*/ '';</script>
+        <script th:src="@{/javascript/code.js}" defer></script>
     </body>
 </html>
