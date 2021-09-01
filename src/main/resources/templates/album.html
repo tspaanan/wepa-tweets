@@ -24,6 +24,25 @@
                                 <section sec:authorize="isAuthenticated()">
                                     <button class="btn btn-primary" th:onclick="'likeImage(' + ${image.id} + ')'">Like</button>
                                 </section>
+                                <button class="btn btn-primary" th:onclick="'toggleComments(' + ${image.id} + ')'">Open comments</button>
+                                <div th:id="'comments' + ${image.id}" style="display: none">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <section sec:authorize="isAuthenticated()">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" th:id="'newcomment' + ${image.id}" name="newComment" />
+                                                    <button class="btn btn-primary" style="margin-top: 10px" id="submitComment" th:onclick="'submitImageComment(' + ${image.id} + ')'">Submit new comment!</button>
+                                                </div>
+                                            </section>
+                                        </li>
+                                        <li th:if="${#lists.isEmpty(comments)}" id="nocommentsyet">No comments yet.</li>
+                                        <li th:each="comment : ${comments}" th:if="${comment.image eq image}">
+                                            <h6><a th:href="@{/wepa-tweetter/__${comment.tweetter.random}__}" th:text="${comment.tweetter.username}">username</a> says:</h6>
+                                            <p th:text="${comment.commentContent}">commentContent</p>
+                                            <p th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                        </li>
+                                    </ul>
+                                </div>
                                 <section th:if="${#authorization.expression('hasAuthority('''+owner.random+''')')}">
                                     <div class="form-group">
                                         <form th:action="@{/removeimage}" method="POST">

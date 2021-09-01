@@ -43,7 +43,7 @@
                                                 </section>
                                             </li>
                                             <li th:if="${#lists.isEmpty(comments)}" id="nocommentsyet">No comments yet.</li>
-                                            <li th:each="comment : ${comments}">
+                                            <li th:each="comment : ${comments}" th:if="${comment.message eq message}">
                                                 <h6><a th:href="@{/wepa-tweetter/__${comment.tweetter.random}__}" th:text="${comment.tweetter.username}">username</a> says:</h6>
                                                 <p th:text="${comment.commentContent}">commentContent</p>
                                                 <p th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
@@ -74,7 +74,7 @@
                                                 </section>
                                             </li>
                                             <li th:if="${#lists.isEmpty(followedComments)}" id="nofollowedcommentsyet">No comments yet.</li>
-                                            <li th:each="followedComment : ${followedComments}">
+                                            <li th:each="followedComment : ${followedComments}" th:if="${followedComment.message eq followedMessage}">
                                                 <h6><a th:href="@{/wepa-tweetter/__${followedComment.tweetter.random}__}" th:text="${followedComment.tweetter.username}">username</a> says:</h6>
                                                 <p th:text="${followedComment.commentContent}">commentContent</p>
                                                 <p th:text="${#temporals.format(followedComment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>

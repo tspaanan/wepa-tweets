@@ -26,4 +26,7 @@ public class WepaComment extends AbstractPersistable<Long> {
     @JsonIgnore
     @ManyToOne
     private WepaMessage message;
+    @JsonIgnore
+    @ManyToOne
+    private PublicImageObject image;
 }

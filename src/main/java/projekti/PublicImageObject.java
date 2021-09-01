@@ -35,4 +35,6 @@ public class PublicImageObject extends AbstractPersistable<Long> {
     private String mediaType;
     @ManyToMany
     private List<WepaTweetter> likes;
+    @OneToMany(mappedBy = "image")
+    private List<WepaComment> comments;
 }

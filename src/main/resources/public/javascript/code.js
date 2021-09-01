@@ -17,6 +17,25 @@ function submitComment(id) {
     }
 }
 
+function submitImageComment(id) {
+    var url = contextRoot + "newimagecomment"
+    var newcomment = document.getElementById("newcomment" + id).value
+    if (newcomment) {
+        var xhttp = new XMLHttpRequest()
+        xhttp.onload = function() {
+            var commentObject = JSON.parse(this.responseText)
+            if (commentObject.tweetter == null) {
+                //do nothing
+            } else {
+                window.location.reload(true)
+                //change display-attribute
+            }
+        }
+        xhttp.open("GET", url + "?newComment=" + newcomment + "&commentImageId=" + id)
+        xhttp.send()
+    }
+}
+
 function searchTweetters() {
     var url = contextRoot + "search"
     var searchterm = document.getElementById("searchterm").value

@@ -125,6 +125,8 @@ public class DefaultController {
         List<PublicImageObject> images = this.publicImageObjectRepository.findByOwner(owner);
         model.addAttribute("count", images.size());
         model.addAttribute("images", images);
+        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        model.addAttribute("comments", this.wepaCommentRepository.findByImageIn(images, pageableComments));
         return "album";
     }
     
@@ -296,7 +298,20 @@ public class DefaultController {
         String username = auth.getName();
         WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
         WepaMessage message = this.wepaMessageRepository.getOne(Long.parseLong(commentMessageId));
-        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, message);
+        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, message, null);
+        this.wepaCommentRepository.save(newWepaComment);
+        return newWepaComment;
+    }
+    
+    @Secured("USER")
+    @ResponseBody
+    @GetMapping("/newimagecomment")
+    public WepaComment newImageComment(@RequestParam String newComment, @RequestParam String commentImageId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        PublicImageObject image = this.publicImageObjectRepository.getOne(Long.parseLong(commentImageId));
+        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, null, image);
         this.wepaCommentRepository.save(newWepaComment);
         return newWepaComment;
     }
