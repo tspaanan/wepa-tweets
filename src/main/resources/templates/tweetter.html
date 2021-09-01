@@ -31,6 +31,25 @@
                                     <section sec:authorize="isAuthenticated()">
                                         <button class="btn btn-primary" th:id="'btn' + ${message.id}" th:onclick="'likeMessage(' + ${message.id} + ')'">Like</button>
                                     </section>
+                                    <button class="btn btn-primary" th:onclick="'toggleComments(' + ${message.id} + ')'">Open comments</button>
+                                    <div th:id="'comments' + ${message.id}" style="display: none">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <section sec:authorize="isAuthenticated()">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" th:id="'newcomment' + ${message.id}" name="newComment" />
+                                                        <button class="btn btn-primary" style="margin-top: 10px" id="submitComment" th:onclick="'submitComment(' + ${message.id} + ')'">Submit new comment!</button>
+                                                    </div>
+                                                </section>
+                                            </li>
+                                            <li th:if="${#lists.isEmpty(comments)}" id="nocommentsyet">No comments yet.</li>
+                                            <li th:each="comment : ${comments}">
+                                                <h6><a th:href="@{/wepa-tweetter/__${comment.tweetter.random}__}" th:text="${comment.tweetter.username}">username</a> says:</h6>
+                                                <p th:text="${comment.commentContent}">commentContent</p>
+                                                <p th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -43,6 +62,25 @@
                                     <section sec:authorize="isAuthenticated()">
                                         <button class="btn btn-primary" th:id="'btn' + ${followedMessage.id}" th:onclick="'likeMessage(' + ${followedMessage.id} + ')'">Like</button>
                                     </section>
+                                    <button class="btn btn-primary" th:onclick="'toggleComments(' + ${followedMessage.id} + ')'">Open comments</button>
+                                    <div th:id="'comments' + ${followedMessage.id}" style="display: none">
+                                        <ul class="list-unstyled">
+                                            <li>
+                                                <section sec:authorize="isAuthenticated()">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" th:id="'newcomment' + ${followedMessage.id}" name="newComment" />
+                                                        <button class="btn btn-primary" style="margin-top: 10px" id="submitComment" th:onclick="'submitComment(' + ${followedMessage.id} + ')'">Submit new comment!</button>
+                                                    </div>
+                                                </section>
+                                            </li>
+                                            <li th:if="${#lists.isEmpty(followedComments)}" id="nofollowedcommentsyet">No comments yet.</li>
+                                            <li th:each="followedComment : ${followedComments}">
+                                                <h6><a th:href="@{/wepa-tweetter/__${followedComment.tweetter.random}__}" th:text="${followedComment.tweetter.username}">username</a> says:</h6>
+                                                <p th:text="${followedComment.commentContent}">commentContent</p>
+                                                <p th:text="${#temporals.format(followedComment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </li>
                             </ul>
                         </div>

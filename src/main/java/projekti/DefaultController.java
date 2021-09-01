@@ -112,6 +112,9 @@ public class DefaultController {
         //model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
         List<WepaFollower> tweettersFollowedBy = tweetter.getFollowing();
         model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
+        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        model.addAttribute("comments", this.wepaCommentRepository.findByMessageIn(messages, pageableComments));
+        model.addAttribute("followedComments", this.wepaCommentRepository.findByMessageIn(followedMessages, pageable));
         return "tweetter";
     }
     
