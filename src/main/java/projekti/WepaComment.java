@@ -1,5 +1,6 @@
 package projekti;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -16,11 +17,13 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @AllArgsConstructor
 @Data
 @Entity
-public class WepaFollower extends AbstractPersistable<Long> {
+public class WepaComment extends AbstractPersistable<Long> {
     
     @ManyToOne
-    private WepaTweetter followed;
+    private WepaTweetter tweetter;
+    private LocalDateTime timestamp;
+    private String commentContent;
+    @JsonIgnore
     @ManyToOne
-    private WepaTweetter followedBy;
-    private LocalDateTime startFollowing;
+    private WepaMessage message;
 }

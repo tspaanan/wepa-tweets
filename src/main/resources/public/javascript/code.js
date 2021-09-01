@@ -1,3 +1,22 @@
+function submitComment(id) {
+    var url = contextRoot + "newcomment"
+    var newcomment = document.getElementById("newcomment" + id).value
+    if (newcomment) {
+        var xhttp = new XMLHttpRequest()
+        xhttp.onload = function() {
+            var commentObject = JSON.parse(this.responseText)
+            if (commentObject.tweetter == null) {
+                //do nothing
+            } else {
+                window.location.reload(true)
+                //change display-attribute
+            }
+        }
+        xhttp.open("GET", url + "?newComment=" + newcomment + "&commentMessageId=" + id)
+        xhttp.send()
+    }
+}
+
 function searchTweetters() {
     var url = contextRoot + "search"
     var searchterm = document.getElementById("searchterm").value
@@ -128,4 +147,14 @@ function likeMessage(id) {
 
 function test() {
     alert("test")
+}
+
+function toggleComments(id) {
+    //alert("testi")
+    var comments = document.getElementById("comments" + id)
+    if (comments.style.display == "none") {
+        comments.style.display = "block"
+    } else {
+        comments.style.display = "none"
+    }
 }

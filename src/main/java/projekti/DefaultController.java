@@ -50,6 +50,9 @@ public class DefaultController {
     private WepaMessageRepository wepaMessageRepository;
     
     @Autowired
+    private WepaCommentRepository wepaCommentRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Autowired
@@ -64,7 +67,10 @@ public class DefaultController {
     @GetMapping("/")
     public String index(Model model) {
         Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending());
-        model.addAttribute("messages", this.wepaMessageRepository.findAll(pageable));
+        List<WepaMessage> messages = this.wepaMessageRepository.findAll(pageable).getContent();
+        model.addAttribute("messages", messages);
+        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        model.addAttribute("comments", this.wepaCommentRepository.findByMessageIn(messages, pageableComments));
         return "index";
     }
     
@@ -274,9 +280,22 @@ public class DefaultController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message, new ArrayList<>());
+        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message, new ArrayList<>(), new ArrayList<>());
         this.wepaMessageRepository.save(newMessage);
         return "redirect:/wepa-tweetter/" + user.getRandom();
+    }
+    
+    @Secured("USER")
+    @ResponseBody
+    @GetMapping("/newcomment")
+    public WepaComment newComment(@RequestParam String newComment, @RequestParam String commentMessageId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaMessage message = this.wepaMessageRepository.getOne(Long.parseLong(commentMessageId));
+        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, message);
+        this.wepaCommentRepository.save(newWepaComment);
+        return newWepaComment;
     }
     
     @Secured("USER")

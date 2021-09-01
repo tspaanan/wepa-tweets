@@ -1,7 +1,6 @@
 package projekti;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
@@ -28,4 +27,6 @@ public class WepaMessage extends AbstractPersistable<Long> {
     private String messageContent;
     @ManyToMany
     private List<WepaTweetter> likes;
+    @OneToMany(mappedBy = "message")
+    private List<WepaComment> comments;
 }
