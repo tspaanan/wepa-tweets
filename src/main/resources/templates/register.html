@@ -2,27 +2,42 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head th:replace="fragments/layout :: head">
         <meta charset="UTF-8" />
-        <!--<title>Hello world</title>-->
-        <title>wepa-tweets</title>
+        <title>WEPA-Tweets</title>
     </head>
     <body>
         <div th:replace="fragments/layout :: header"></div>
         
         <div class="container">
             <div class="row">
-                <div class="col-2">
-                    
+                <div class="col-3">
+                    <div th:replace="fragments/layout :: sidebar"></div>
                 </div>
-                <div class="col-10">
+                <div class="col-9">
                     <form th:action="@{/register}" method="POST">
-                        <input type="text" name="username">username</input>
-                        <input type="text" name="password">password</input>
-                        <input type="text" name="realname">real name</input>
-                        <input type="text" name="random">favourite random string</input>
-                        <input type="submit" value="Register!"/>
+                        <div class="form-group">
+                            <label>Choose your username:</label>
+                            <input type="text" class="form-control" style="max-width: 18em" name="username"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>Choose your password:</label>
+                            <input type="password" class="form-control" style="max-width: 18em" name="password"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>Choose your real name:</label>
+                            <input type="text" class="form-control" style="max-width: 18em;" name="realname"></input>
+                            <small class="form-text text-muted">Protip: do not use your real "real name"</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Choose your favourite random string</label>
+                            <input type="text" class="form-control" style="max-width: 18em" name="random"></input>
+                            <small class="form-text text-muted">This string will be used to display your personal profile page</small>
+                            <small class="form-text text-muted">For example: /wepa-tweetter/your-random-string</small>
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Register!"/>
                     </form>
                 </div>
             </div>
         </div>
+        <div th:replace="fragments/layout :: footer"></div>
     </body>
 </html>

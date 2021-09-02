@@ -27,6 +27,21 @@
                     </div>
                 </li>
             </ul>
+            <div class="input-group input-group-sm mb-3" style="margin-top: 10px">
+                <input type="text" class="form-control" id="searchterm"/>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-info" id="submitSearch" onclick="searchTweetters()">Search</button>
+                </div>
+            </div>
+            <section id="searchResults">
+                <ul class="list-unstyled" style="margin-top: 5px" id="searchResultsList">
+                    <!--this empty space acts as firstChild of this element-->
+                </ul>
+            </section>
+        </section>
+        <section th:fragment="footer">
+            <script th:inline="javascript"> var contextRoot = /*[[@{/}]]*/ '';</script>
+            <script th:src="@{/javascript/code.js}" defer></script>
         </section>
     </body>
 </html>

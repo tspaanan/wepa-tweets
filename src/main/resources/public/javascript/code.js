@@ -69,7 +69,7 @@ function searchTweetters() {
                 newFollowElement.id = responseInList[i].username
                 newFollowElement.innerHTML = "Follow"
                 newFollowElement.style = "margin-left: 10px"
-                newFollowElement.className = "btn btn-outline-primary"
+                newFollowElement.className = "btn btn-outline-info"
                 newLiElement.id = "li" + responseInList[i].username
                 
                 //for some strange reason, only an anonymous function like below
