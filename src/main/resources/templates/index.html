@@ -2,56 +2,61 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head th:replace="fragments/layout :: head">
         <meta charset="UTF-8" />
-        <!--<title>Hello world</title>-->
-        <title>wepa-tweets</title>
+        <title>WEPA-Tweets</title>
     </head>
     <body>
-        <!--<h1 th:text="${'Hello ' + message}">Hello world</h1>-->
         <div th:replace="fragments/layout :: header"></div>
         
         <div class="container">
             <div class="row">
-                <div class="col-2">
+                <div class="col-4">
                     <div th:replace="fragments/layout :: sidebar"></div>
-                </div>
-                <div class="col-3">
-                    <input type="text" class="form-control" id="searchterm"/>
-                    <button class="btn btn-primary" style="margin-top: 10px" id="submitSearch" onclick="searchTweetters()">Search Tweetters!</button>
+                    <div class="input-group input-group-sm mb-3" style="margin-top: 10px">
+                        <input type="text" class="form-control" id="searchterm"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-info" id="submitSearch" onclick="searchTweetters()">Search</button>
+                        </div>
+                    </div>
                     <section id="searchResults">
-                        <ul id="searchResultsList">
-                            
+                        <ul class="list-unstyled" style="margin-top: 5px" id="searchResultsList">
+                            <!--this empty space acts as firstChild of this element-->
                         </ul>
                     </section>
                 </div>
-                <div class="col-7">
+                <div class="col-8">
                     <h1>Latest messages:</h1>
                     <ul class="list-unstyled">
                         <li th:each="message : ${messages}">
-                            <h5><a th:href="@{/wepa-tweetter/__${message.tweetter.random}__}" th:text="${message.tweetter.username}">username</a> says:</h5>
-                            <p th:text="${message.messageContent}">messageContent</p>
-                            <p th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
-                            <p th:id="'like' + ${message.id}" th:value="${#lists.size(message.likes)}" th:text="'Likes: ' + ${#lists.size(message.likes)}">0</p>
-                            <section sec:authorize="isAuthenticated()">
-                                <button class="btn btn-primary" th:id="'btn' + ${message.id}" th:onclick="'likeMessage(' + ${message.id} + ')'">Like</button>
-                            </section>
-                            <button class="btn btn-primary" th:onclick="'toggleComments(' + ${message.id} + ')'">Open comments</button>
-                            <div th:id="'comments' + ${message.id}" style="display: none">
-                                <ul class="list-unstyled">
-                                    <li>
-                                        <section sec:authorize="isAuthenticated()">
-                                            <div class="form-group">
-                                                <input type="text" class="form-control" th:id="'newcomment' + ${message.id}" name="newComment" />
-                                                <button class="btn btn-primary" style="margin-top: 10px" id="submitComment" th:onclick="'submitComment(' + ${message.id} + ')'">Submit new comment!</button>
-                                            </div>
-                                        </section>
-                                    </li>
-                                    <li th:if="${#lists.isEmpty(comments)}" id="nocommentsyet">No comments yet.</li>
-                                    <li th:each="comment : ${comments}">
-                                        <h6><a th:href="@{/wepa-tweetter/__${comment.tweetter.random}__}" th:text="${comment.tweetter.username}">username</a> says:</h6>
-                                        <p th:text="${comment.commentContent}">commentContent</p>
-                                        <p th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</p>
-                                    </li>
-                                </ul>
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a th:href="@{/wepa-tweetter/__${message.tweetter.random}__}" th:text="${message.tweetter.username}">username</a> says:</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted" th:text="${#temporals.format(message.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</h6>
+                                    <p class="card-text" th:text="${message.messageContent}">messageContent</p>
+                                    <p class="card-text" th:id="'like' + ${message.id}" th:value="${#lists.size(message.likes)}" th:text="'Likes: ' + ${#lists.size(message.likes)}">0</p>
+                                    <section sec:authorize="isAuthenticated()">
+                                        <button class="btn btn-primary" th:id="'btn' + ${message.id}" th:onclick="'likeMessage(' + ${message.id} + ')'">Like</button>
+                                    </section>
+                                    <button class="btn btn-primary" style="margin-top: 5px" th:onclick="'toggleComments(' + ${message.id} + ')'">Open comments</button>
+                                    <div th:id="'comments' + ${message.id}" class="card mb-3" style="display: none; margin-top: 10px">
+                                        <div class="card-body">
+                                            <ul class="list-unstyled" style="margin-top: 10px">
+                                                <li>
+                                                    <section sec:authorize="isAuthenticated()">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" th:id="'newcomment' + ${message.id}" name="newComment" />
+                                                            <button class="btn btn-outline-primary" style="margin-top: 10px" id="submitComment" th:onclick="'submitComment(' + ${message.id} + ')'">Submit new comment!</button>
+                                                        </div>
+                                                    </section>
+                                                </li>
+                                                <li th:each="comment : ${comments}" th:if="${comment.message eq message}">
+                                                    <h6 class="card-title" style="margin-top: 5px"><a th:href="@{/wepa-tweetter/__${comment.tweetter.random}__}" th:text="${comment.tweetter.username}">username</a> says:</h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted" th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}">timestamp</h6>
+                                                    <p class="card-text" th:text="${comment.commentContent}">commentContent</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </li>
                     </ul>
