@@ -1,6 +1,7 @@
 package projekti;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -10,12 +11,20 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -25,8 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class FunctionalTest extends org.fluentlenium.adapter.junit.FluentTest {
+@SpringBootTest//(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+public class FunctionalTest { //extends org.fluentlenium.adapter.junit.FluentTest {
     
     public FunctionalTest() {
     }
@@ -50,33 +60,169 @@ public class FunctionalTest extends org.fluentlenium.adapter.junit.FluentTest {
         this.wepaTweetterRepository.save(otherTweetter);
         thirdTweetter.setUsername("thirdUser");
         this.wepaTweetterRepository.save(thirdTweetter);
+        wepaMessage.setMessageContent("message");
+        wepaMessage.setTweetter(newTweetter);
+        wepaMessageRepository.save(wepaMessage);
+        wepaComment.setCommentContent("comment");
+        //wepaComment.setMessage(wepaMessage);
+        wepaComment.setTweetter(newTweetter);
+        wepaCommentRepository.save(wepaComment);
+        //wepaMessageRepository.save(wepaMessage);
+        newUser.setName("testToFollow");
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
     
     @After
     public void tearDown() {
-        this.wepaTweetterRepository.delete(newTweetter);
-        this.wepaTweetterRepository.delete(otherTweetter);
+        //this.wepaTweetterRepository.deleteAll();
     }
     
-    @LocalServerPort
-    private Integer port;
+    //@LocalServerPort
+    //private Integer port;
     
     @Autowired
     private WepaTweetterRepository wepaTweetterRepository;
     
     @Autowired
+    private WepaMessageRepository wepaMessageRepository;
+    
+    @Autowired
     private WepaFollowerRepository wepaFollowerRepository;
+    
+    @Autowired
+    private WepaCommentRepository wepaCommentRepository;
+    
+    @Autowired
+    private PublicImageObjectRepository publicImageObjectRepository;
     
     @Autowired
     private DefaultController defaultController;
     
+    @Autowired DefaultService defaultService;
+    
+    @Autowired
+    private MockMvc mockMvc;
+    
     private WepaTweetter newTweetter = new WepaTweetter();
     private WepaTweetter otherTweetter = new WepaTweetter();
     private WepaTweetter thirdTweetter = new WepaTweetter();
+    private WepaMessage wepaMessage = new WepaMessage();
+    private WepaComment wepaComment = new WepaComment();
+    private SecurityProperties.User newUser = new SecurityProperties.User();
+    private Authentication auth = new UsernamePasswordAuthenticationToken(newUser,null);
+    
+    //@Test
+    //public void indexHasMessages() throws Exception {
+    //    mockMvc.perform(get("/")).andExpect(model().attributeExists("messages"));
+    //}
     
     @Test
-    public void noTestWithoutAuthentication() {
-        
+    public void newUserIsRedirectedUponRegister() throws Exception {
+        mockMvc.perform(post("/register")
+                .param("username","username1")
+                .param("password", "password")
+                .param("realname", "realname")
+                .param("random", "random"))
+                .andExpect(status().is3xxRedirection());
+    }
+    
+    @Test
+    public void newUserCanRegister() throws Exception {
+        mockMvc.perform(post("/register")
+                .param("username","username2")
+                .param("password", "password")
+                .param("realname", "realname")
+                .param("random", "random"))
+                .andReturn();
+        assertEquals("realname", wepaTweetterRepository.findByUsername("username2").getRealname());
+    }
+    
+    //@Test
+    //@WithMockUser
+    //public void albumViewHasAllImages() throws Exception {
+    //    mockMvc.perform(get("/wepa-tweetter/random/album"))
+    //            .andExpect(status().is2xxSuccessful());
+    //}
+    
+    //@Test
+    //public void imageReturnedHasHttpHeaders() {
+    //    ResponseEntity<byte[]> response = defaultController.returnImage(1L);
+    //    assertTrue(response.getHeaders().containsKey(""));
+    //}
+    
+    @Test
+    public void searchReturnsNullUser() throws Exception {
+        MvcResult result = mockMvc.perform(get("/search")
+                .param("searchterm", "fourthUser"))
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("null"));
+    }
+    
+    @Test
+    public void searchReturnsUser() throws Exception {
+        WepaTweetter searchUser = new WepaTweetter();
+        searchUser.setUsername("searchUser");
+        wepaTweetterRepository.save(searchUser);
+        MvcResult result = mockMvc.perform(get("/search")
+                .param("searchterm", "searchUser"))
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("searchUser"));
+    }
+    
+    //@Test
+    //@WithMockUser(username="testToFollow")
+    //public void userCanFollow() throws Exception {
+    //    WepaTweetter testToFollow = new WepaTweetter();
+    //    testToFollow.setUsername("testToFollow");
+    //    wepaTweetterRepository.save(testToFollow);
+    //    WepaTweetter testFollower = new WepaTweetter();
+    //    testFollower.setUsername("testFollower");
+    //    wepaTweetterRepository.save(testFollower);
+    //    MvcResult result = mockMvc.perform(get("/follow")
+    //            .param("follow", "testFollower"))
+    //            .andReturn();
+    //    assertTrue(result.getResponse().getContentAsString().contains("testToFollow"));
+    //}
+    
+    //@Test
+    //@WithMockUser
+    //public void userCanSendMessageLeadesToRedirect() throws Exception {
+    //    mockMvc.perform(post("/newmessage")
+    //            .param("message","message"))
+    //            .andExpect(status().is3xxRedirection());
+    //}
+    
+    @Test
+    public void userCanLeaveComment() throws Exception {
+        MvcResult result = mockMvc.perform(get("/newcomment")
+                .param("newComment", "newComment")
+                .param("commentMessageId", Long.toString(wepaMessageRepository.findAll().get(0).getId())))
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("newComment"));
+    }
+    
+    @Test
+    public void userCanLeaveCommentToImage() throws Exception {
+        MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
+        defaultService.addImage(newTweetter, mockFile, "description");
+        MvcResult result = mockMvc.perform(get("/newimagecomment")
+                .param("newComment", "newComment")
+                .param("commentImageId", Long.toString(publicImageObjectRepository.findAll().get(0).getId())))
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains("newComment"));
+    }
+    
+    @Test
+    public void userCanSetProfileImage() throws Exception {
+        MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
+        defaultService.addImage(newTweetter, mockFile, "description");
+        WepaTweetter testUser2 = new WepaTweetter();
+        testUser2.setUsername("testUser2");
+        wepaTweetterRepository.save(testUser2);
+        mockMvc.perform(post("/setprofile")
+                .param("profileOwner","testUser2")
+                .param("profileId", Long.toString(publicImageObjectRepository.findAll().get(0).getId())))
+                .andExpect(status().is3xxRedirection());
     }
     
     //this test needs authentication, MockMvc or something

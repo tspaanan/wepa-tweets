@@ -1,5 +1,7 @@
 package projekti;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,8 +11,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -46,11 +53,20 @@ public class IntegrationTest {
         this.wepaTweetterRepository.save(newTweetter);
         otherTweetter.setUsername("otherUser");
         this.wepaTweetterRepository.save(otherTweetter);
+        newUser.setName("testUser");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        newFollower.setFollowed(otherTweetter);
+        newFollower.setFollowedBy(newTweetter);
+        wepaFollowerRepository.save(newFollower);
     }
     
     @After
     public void tearDown() {
-        this.wepaTweetterRepository.deleteAll();
+        //this.wepaFollowerRepository.deleteAll();
+        //this.wepaCommentRepository.deleteAll();
+        //this.wepaMessageRepository.deleteAll();
+        //this.publicImageObjectRepository.deleteAll();
+        //this.wepaTweetterRepository.deleteAll();
     }
 
     // TODO add test methods here.
@@ -61,23 +77,116 @@ public class IntegrationTest {
     
     private WepaTweetter newTweetter = new WepaTweetter();
     private WepaTweetter otherTweetter = new WepaTweetter();
+    private MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
+    private User newUser = new User();
+    private Authentication auth = new UsernamePasswordAuthenticationToken(newUser,null);
+    private WepaFollower newFollower = new WepaFollower();
+    
+    @Autowired
+    private PublicImageObjectRepository publicImageObjectRepository;
+    
+    @Autowired
+    private WepaCommentRepository wepaCommentRepository;
+    
+    @Autowired
+    private WepaFollowerRepository wepaFollowerRepository;
+    
+    @Autowired
+    private WepaMessageRepository wepaMessageRepository;
     
     @Autowired
     private WepaTweetterRepository wepaTweetterRepository;
     
     @Autowired
-    private DefaultController defaultController;
+    private DefaultService defaultService;
     
     @Test
-    public void userCanRegister() {
-        this.wepaTweetterRepository.deleteAll();
-        defaultController.registerPost(newTweetter);
-        WepaTweetter registered = this.wepaTweetterRepository.findByUsername("testUser");
-        assertEquals("realName", registered.getRealname());
-        assertEquals("string", registered.getRandom());
-        assertNotEquals("password", registered.getPassword()); //asserting NotEqual, bc/
-        //password should have been hashed via BCrypt
+    public void imageCanBeAdded() throws IOException {
+        //File mockFile = new File("mFile");
+        defaultService.addImage(newTweetter, mockFile, "description");
+        PublicImageObject mockImage = publicImageObjectRepository.findByOwner(newTweetter).get(0);
+        assertEquals("testUser", mockImage.getOwner().getUsername());
+        assertEquals("description", mockImage.getDescription());
+        assertEquals(1, mockImage.getImageContent().length);
     }
+    
+    @Test
+    public void imageCommentCanBeAdded() throws IOException {
+        //MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
+        defaultService.addImage(newTweetter, mockFile, "description");
+        WepaComment testComment = defaultService.addImageComment("comment", Long.toString(publicImageObjectRepository.findByOwner(newTweetter).get(0).getId()));
+        assertEquals("comment", testComment.getCommentContent());
+    }
+    
+    //@Test
+    //public void imageCanBeLiked() throws IOException {
+    //    defaultService.addImage(newTweetter, mockFile, "description");
+    //    defaultService.addImageLike("1");
+        //PublicImageObject mockImage = publicImageObjectRepository.findByOwner(newTweetter).get(0);
+    //    PublicImageObject testObject = new PublicImageObject();
+    //    testObject.setDescription("description");
+    //    assertEquals(testObject, publicImageObjectRepository.findAll().get(0));
+    //}
+    
+    @Test
+    public void messageCanBeAdded() {
+        defaultService.addMessage(newTweetter, "message");
+        assertEquals("message", wepaMessageRepository.findAll().get(0).getMessageContent());
+    }
+    
+    @Test
+    public void messageCommentCanBeAdded() {
+        defaultService.addMessage(newTweetter, "message");
+        WepaComment testComment = defaultService.addMessageComment("comment", Long.toString(wepaMessageRepository.findAll().get(0).getId()));
+        assertEquals("comment", testComment.getCommentContent());
+    }
+    
+    @Test
+    public void tweetterCanBeBlocked() {
+        //WepaFollower testFollower = new WepaFollower();
+        //newFollower.setFollowed(otherTweetter);
+        //newFollower.setFollowedBy(newTweetter);
+        //wepaFollowerRepository.save(newFollower);
+        defaultService.blockTweetter(newTweetter, otherTweetter);
+        assertFalse(otherTweetter.getFollowingBy().contains(newTweetter));
+    }
+    
+    @Test
+    public void tweetterCanBeRegistered() {
+        WepaTweetter registered = new WepaTweetter();
+        registered.setUsername("registered");
+        registered.setPassword("password");
+        defaultService.registerTweetter(registered);
+        WepaTweetter tested = wepaTweetterRepository.findByUsername("registered");
+        assertNotEquals("password", tested.getPassword()); //password should be hashed
+    }
+    
+    @Test
+    public void followerCanBeRemoved() {
+        defaultService.removeFollowing(otherTweetter, newTweetter);
+        assertFalse(newTweetter.getFollowing().contains(otherTweetter));
+    }
+    
+    @Test
+    public void profileImageCanBeSet() throws IOException {
+        WepaTweetter imageTweetter = new WepaTweetter();
+        imageTweetter.setUsername("imageTweetter");
+        wepaTweetterRepository.save(imageTweetter);
+        defaultService.addImage(imageTweetter, mockFile, "description");
+        WepaTweetter testTweetter = defaultService.setProfileImage("imageTweetter", Long.toString(publicImageObjectRepository.findByOwner(imageTweetter).get(0).getId()));
+        assertEquals("description", testTweetter.getProfileImage().getDescription());
+    }
+    
+    //@Test
+    //public void userCanRegister() {
+    //    this.wepaTweetterRepository.deleteAll();
+    //    defaultController.registerPost(newTweetter);
+    //    WepaTweetter registered = this.wepaTweetterRepository.findByUsername("testUser");
+    //    assertEquals("realName", registered.getRealname());
+    //    assertEquals("string", registered.getRandom());
+    //    assertNotEquals("password", registered.getPassword()); //asserting NotEqual, bc/
+        //password should have been hashed via BCrypt
+    //}
     
     //@Test
     //public void userCanBeSearchedFor() {
@@ -90,8 +199,8 @@ public class IntegrationTest {
     //selvitä tämä LazyInitializationException
     //https://thorben-janssen.com/lazyinitializationexception/
     
-    @Test
-    public void userCanFollowOtherUsers() {
+    //@Test
+    //public void userCanFollowOtherUsers() {
         //without SecurityContext present this test cannot be written at this level
-    }
+    //}
 }

@@ -37,26 +37,26 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class DefaultController {
     
-    @Autowired
-    private WepaTweetterRepository wepaTweetterRepository;
+    //@Autowired
+    //private WepaTweetterRepository wepaTweetterRepository;
     
-    @Autowired
-    private WepaFollowerRepository wepaFollowerRepository;
+    //@Autowired
+    //private WepaFollowerRepository wepaFollowerRepository;
     
-    @Autowired
-    private PublicImageObjectRepository publicImageObjectRepository;
+    //@Autowired
+    //private PublicImageObjectRepository publicImageObjectRepository;
     
-    @Autowired
-    private WepaMessageRepository wepaMessageRepository;
+    //@Autowired
+    //private WepaMessageRepository wepaMessageRepository;
     
-    @Autowired
-    private WepaCommentRepository wepaCommentRepository;
+    //@Autowired
+    //private WepaCommentRepository wepaCommentRepository;
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    //@Autowired
+    //private PasswordEncoder passwordEncoder;
     
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    //@Autowired
+    //private CustomUserDetailsService userDetailsService;
     
     @Autowired
     private DefaultService defaultService;
