@@ -58,6 +58,9 @@ public class DefaultController {
     @Autowired
     private CustomUserDetailsService userDetailsService;
     
+    @Autowired
+    private DefaultService defaultService;
+    
     //@GetMapping("*")
     //public String helloWorld(Model model) {
     //    model.addAttribute("message", "World!");
@@ -66,11 +69,13 @@ public class DefaultController {
     
     @GetMapping("/")
     public String index(Model model) {
-        Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending());
-        List<WepaMessage> messages = this.wepaMessageRepository.findAll(pageable).getContent();
-        model.addAttribute("messages", messages);
-        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
-        model.addAttribute("comments", this.wepaCommentRepository.findByMessageIn(messages, pageableComments));
+        //Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending());
+        //Pageable pageable = this.defaultService.createPageable(2, "timestamp"); //@Service-luokka toimii!
+        //List<WepaMessage> messages = this.wepaMessageRepository.findAll(pageable).getContent();
+        //List<WepaMessage> messages = this.defaultService.getRootMessages();
+        model.addAttribute("messages", this.defaultService.getRootMessages());
+        //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        model.addAttribute("comments", this.defaultService.getRootComments());
         return "index";
     }
     
@@ -86,47 +91,52 @@ public class DefaultController {
     
     @PostMapping("/register")
     public String registerPost(@ModelAttribute WepaTweetter newTweetter) {
-        newTweetter.setPassword(this.passwordEncoder.encode(newTweetter.getPassword()));
-        this.wepaTweetterRepository.save(newTweetter);
+        //newTweetter.setPassword(this.passwordEncoder.encode(newTweetter.getPassword()));
+        //this.wepaTweetterRepository.save(newTweetter);
+        this.defaultService.registerTweetter(newTweetter);
         return "redirect:/";
     }
     
     @GetMapping("/wepa-tweetter/{random}")
     public String tweetter(Model model, @PathVariable String random) {
-        WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
+        //WepaTweetter tweetter = this.wepaTweetterRepository.findByRandom(random);
+        WepaTweetter tweetter = this.defaultService.getTweetterByRandom(random);
         model.addAttribute("tweetter", tweetter);
-        Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending()); //limit all queries to latest 25
-        List<WepaMessage> messages = this.wepaMessageRepository.findByTweetter(tweetter, pageable);
-        model.addAttribute("messages", messages);
-        List<WepaFollower> tweettersFollowed = tweetter.getFollowingBy();
-        model.addAttribute("tweettersFollowed", tweettersFollowed);
-        List<WepaTweetter> followedTweetters = tweettersFollowed.stream().map((follower) -> follower.getFollowed()).collect(Collectors.toCollection(ArrayList::new));
-        List<WepaMessage> followedMessages= this.wepaMessageRepository.findByTweetterIn(followedTweetters, pageable);
+        //Pageable pageable = PageRequest.of(0, 25, Sort.by("timestamp").descending()); //limit all queries to latest 25
+        //List<WepaMessage> messages = this.wepaMessageRepository.findByTweetter(tweetter, pageable);
+        model.addAttribute("messages", this.defaultService.getMessagesByTweetter(tweetter));
+        //List<WepaFollower> tweettersFollowed = tweetter.getFollowingBy();
+        model.addAttribute("tweettersFollowed", tweetter.getFollowingBy());
+        //List<WepaTweetter> followedTweetters = tweettersFollowed.stream().map((follower) -> follower.getFollowed()).collect(Collectors.toCollection(ArrayList::new));
+        //List<WepaMessage> followedMessages= this.wepaMessageRepository.findByTweetterIn(followedTweetters, pageable);
         //debug:
-        for (WepaMessage mes : followedMessages) {
-            System.out.println(mes.getMessageContent());
-        }
-        model.addAttribute("followedMessages", followedMessages);
+        //for (WepaMessage mes : followedMessages) {
+        //    System.out.println(mes.getMessageContent());
+        //}
+        model.addAttribute("followedMessages", this.defaultService.getMessagesFollowed(tweetter));
         //List<WepaFollower> tweettersFollowedBy = tweetter.getFollowingBy();
         //List<WepaFollower> tweettersFollowedBy = this.wepaFollowerRepository.findByFollowed(tweetter);
         //model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
-        List<WepaFollower> tweettersFollowedBy = tweetter.getFollowing();
-        model.addAttribute("tweettersFollowedBy", tweettersFollowedBy);
-        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
-        model.addAttribute("comments", this.wepaCommentRepository.findByMessageIn(messages, pageableComments));
-        model.addAttribute("followedComments", this.wepaCommentRepository.findByMessageIn(followedMessages, pageable));
+        //List<WepaFollower> tweettersFollowedBy = tweetter.getFollowing();
+        model.addAttribute("tweettersFollowedBy", tweetter.getFollowing());
+        //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        model.addAttribute("comments", this.defaultService.getCommentsByTweetter(tweetter));
+        model.addAttribute("followedComments", this.defaultService.getCommentsFollowed(tweetter));
         return "tweetter";
     }
     
     @GetMapping("/wepa-tweetter/{random}/album")
     public String album(Model model, @PathVariable String random) {
-        WepaTweetter owner = this.wepaTweetterRepository.findByRandom(random);
+        //WepaTweetter owner = this.wepaTweetterRepository.findByRandom(random);
+        WepaTweetter owner = this.defaultService.getTweetterByRandom(random);
         model.addAttribute("owner", owner);
-        List<PublicImageObject> images = this.publicImageObjectRepository.findByOwner(owner);
+        //List<PublicImageObject> images = this.publicImageObjectRepository.findByOwner(owner);
+        List<PublicImageObject> images = this.defaultService.getImagesByOwner(owner);
         model.addAttribute("count", images.size());
         model.addAttribute("images", images);
-        Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
-        model.addAttribute("comments", this.wepaCommentRepository.findByImageIn(images, pageableComments));
+        //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
+        //model.addAttribute("comments", this.wepaCommentRepository.findByImageIn(images, pageableComments));
+        model.addAttribute("comments", this.defaultService.getImageComments(images));
         return "album";
     }
     
@@ -134,7 +144,8 @@ public class DefaultController {
     @ResponseBody
     @GetMapping("/images/{id}")
     public ResponseEntity<byte[]> returnImage(@PathVariable Long id) {
-        PublicImageObject publicImageObject = this.publicImageObjectRepository.getOne(id);
+        //PublicImageObject publicImageObject = this.publicImageObjectRepository.getOne(id);
+        PublicImageObject publicImageObject = this.defaultService.getImageById(id);
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(publicImageObject.getMediaType()));
         ResponseEntity<byte[]> returnedImage = new ResponseEntity<>(publicImageObject.getImageContent(),
@@ -154,8 +165,12 @@ public class DefaultController {
     public List<WepaTweetter> search(@RequestParam String searchterm) {
         //this.wepaTweetterRepository.findByUsername("admin").setFollowing(new ArrayList<>());
         //liitostaulu sotkee JSON-datan välityksen javascriptille, yllä tyhjennetään se
+        
+        //designed to return a list of results
         List<WepaTweetter> listOfTweetters = new ArrayList<>();
-        WepaTweetter foundTweetter = this.wepaTweetterRepository.findByUsername(searchterm);
+        //implemented to return a single result (for now)
+        //WepaTweetter foundTweetter = this.wepaTweetterRepository.findByUsername(searchterm);
+        WepaTweetter foundTweetter = this.defaultService.getTweetterByUsername(searchterm);
         if (foundTweetter != null) {
             //foundTweetter.setFollowing(new ArrayList<WepaFollower>());
             //foundTweetter.setFollowingBy(new ArrayList<WepaFollower>());
@@ -163,7 +178,7 @@ public class DefaultController {
         } else {
             listOfTweetters.add(new WepaTweetter());
         }
-        System.out.println("koko on: " + listOfTweetters.size());
+        //System.out.println("koko on: " + listOfTweetters.size());
         //System.out.println(listOfTweetters.get(0));
         return listOfTweetters;
     }
@@ -176,15 +191,19 @@ public class DefaultController {
         //WepaTweetter testi = new WepaTweetter();
         //testi.setUsername("testiNull");
         //return testi;
-        WepaTweetter followed = this.wepaTweetterRepository.findByUsername(follow);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        System.out.println("sec context returns: " + username);
+        //WepaTweetter followed = this.wepaTweetterRepository.findByUsername(follow);
+        WepaTweetter followed = this.defaultService.getTweetterByUsername(follow);
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //System.out.println("sec context returns: " + username);
         //UserDetails user = this.userDetailsService.loadUserByUsername(username);
         //kokonaista Useria ei ehkä tarvitakaan?
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaTweetter user = this.defaultService.getAuthorizedUser();
+        
+        //prevent user following themselves
         if (user.equals(followed)) {
-            System.out.println("same hit");
+            //System.out.println("same hit");
             return new WepaTweetter();
         }
         //System.out.println("userin listan pituus on: " + user.getFollowing().size());
@@ -197,18 +216,24 @@ public class DefaultController {
         //    }
         //}
         //täytyy korvata yläpuolen tarkistus seuraavalla:
-        if (this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user) != null) {
+        //if (this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user) != null) {
+        //    return new WepaTweetter();
+        //}
+        
+        //prevent user following someone they are already following
+        if (this.defaultService.checkExistingFollowing(followed, user)) {
             return new WepaTweetter();
         }
         
-        //check blocklist
+        //prevent user following someone they have blocked or been blocked by
         if (followed.getBlocked().contains(user) || user.getBlocked().contains(followed)) {
             return new WepaTweetter();
         }
         
-        LocalDateTime now = LocalDateTime.now();
-        WepaFollower newFollower = new WepaFollower(followed, user, now);
-        this.wepaFollowerRepository.save(newFollower);
+        //LocalDateTime now = LocalDateTime.now();
+        //WepaFollower newFollower = new WepaFollower(followed, user, LocalDateTime.now());
+        //this.wepaFollowerRepository.save(newFollower);
+        this.defaultService.saveNewWepaFollower(followed, user);
         //ilmeisesti tämä tallennus riittää?
         
         //WepaFollower newFollowedBy = new WepaFollower(user, now);
@@ -219,9 +244,9 @@ public class DefaultController {
         //followed.getFollowingBy().add(newFollower);
         //this.wepaTweetterRepository.save(followed);
         //user.getFollowing().add(newFollower);
-        System.out.println("tällä listan pituus on: " + user.getFollowing().size());
+        //System.out.println("tällä listan pituus on: " + user.getFollowing().size());
         //this.wepaTweetterRepository.save(user);
-        System.out.println("tällä listan pituus on: " + user.getFollowing().size());
+        //System.out.println("tällä listan pituus on: " + user.getFollowing().size());
         //user.setFollowing(new ArrayList<WepaFollower>());
         //user.setFollowingBy(new ArrayList<WepaFollower>());
         return user;
@@ -230,12 +255,17 @@ public class DefaultController {
     @PreAuthorize("#returnToUnfollow == authentication.principal.random")
     @PostMapping("/unfollow")
     public String unfollow(@RequestParam String returnToUnfollow, @RequestParam String unfollow) {
-        WepaTweetter followed = this.wepaTweetterRepository.findByUsername(unfollow);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user);
-        this.wepaFollowerRepository.delete(unfollowed);
+        //WepaTweetter followed = this.wepaTweetterRepository.findByUsername(unfollow);
+        WepaTweetter followed = this.defaultService.getTweetterByUsername(unfollow);
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaTweetter user = this.defaultService.getAuthorizedUser();
+        //WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(followed, user);
+        if (this.defaultService.checkExistingFollowing(followed, user)) {
+            this.defaultService.removeFollowing(followed, user);
+        }
+        //this.wepaFollowerRepository.delete(unfollowed);
         return "redirect:/wepa-tweetter/" + returnToUnfollow;
     }
     
@@ -245,48 +275,56 @@ public class DefaultController {
         //ajatus: lisätään blokkilistaan, sitten kutsutaan unfollow()
         //joka poistaa seuraamisen (ja blokkilista estää uudestaan lisäämisen)
         //ei toimi, täytyy muutenkin eriyttää erillinen @Service-palvelu
-        WepaTweetter blocked = this.wepaTweetterRepository.findByUsername(block);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        user.getBlocked().add(blocked);
-        this.wepaTweetterRepository.save(user);
-        WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(blocked, user);
-        WepaFollower unfollowedMirror = this.wepaFollowerRepository.findByFollowedAndFollowedBy(user, blocked);
-        if (unfollowed != null) {
-            this.wepaFollowerRepository.delete(unfollowed);
-        }
-        if (unfollowedMirror != null) {
-            this.wepaFollowerRepository.delete(unfollowedMirror);
-        }
+        //WepaTweetter blocked = this.wepaTweetterRepository.findByUsername(block);
+        WepaTweetter blocked = this.defaultService.getTweetterByUsername(block);
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaTweetter user = this.defaultService.getAuthorizedUser();
+        this.defaultService.blockTweetter(blocked, user);
+        
+        //user.getBlocked().add(blocked);
+        //this.wepaTweetterRepository.save(user);
+        //WepaFollower unfollowed = this.wepaFollowerRepository.findByFollowedAndFollowedBy(blocked, user);
+        //WepaFollower unfollowedMirror = this.wepaFollowerRepository.findByFollowedAndFollowedBy(user, blocked);
+        //if (unfollowed != null) {
+        //    this.wepaFollowerRepository.delete(unfollowed);
+        //}
+        //if (unfollowedMirror != null) {
+        //    this.wepaFollowerRepository.delete(unfollowedMirror);
+        //}
         return "redirect:/wepa-tweetter/" + returnToBlock;
     }
     
     @Secured("USER")
     @PostMapping("/addimage")
     public String addImage(@RequestParam("image") MultipartFile image, @RequestParam("description") String description) throws IOException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        if (this.publicImageObjectRepository.findByOwner(user).size() < 10) {
-            PublicImageObject publicImageObject = new PublicImageObject();
-            publicImageObject.setMediaType(image.getContentType());
-            publicImageObject.setDescription(description);
-            publicImageObject.setImageContent(image.getBytes());
-            publicImageObject.setOwner(user);
-        this.publicImageObjectRepository.save(publicImageObject);
-        }
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaTweetter user = this.defaultService.getAuthorizedUser();
+        this.defaultService.addImage(user, image, description);
+        //if (this.publicImageObjectRepository.findByOwner(user).size() < 10) {
+        //    PublicImageObject publicImageObject = new PublicImageObject();
+        //    publicImageObject.setMediaType(image.getContentType());
+        //    publicImageObject.setDescription(description);
+        //    publicImageObject.setImageContent(image.getBytes());
+        //    publicImageObject.setOwner(user);
+        //this.publicImageObjectRepository.save(publicImageObject);
+        //}
         return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
     }
     
     @Secured("USER")
     @PostMapping("/newmessage")
     public String newMessage(@RequestParam String message) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message, new ArrayList<>(), new ArrayList<>());
-        this.wepaMessageRepository.save(newMessage);
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        WepaTweetter user = this.defaultService.getAuthorizedUser();
+        //WepaMessage newMessage = new WepaMessage(user, LocalDateTime.now(), message, new ArrayList<>(), new ArrayList<>());
+        //this.wepaMessageRepository.save(newMessage);
+        this.defaultService.addMessage(user, message);
         return "redirect:/wepa-tweetter/" + user.getRandom();
     }
     
@@ -294,41 +332,44 @@ public class DefaultController {
     @ResponseBody
     @GetMapping("/newcomment")
     public WepaComment newComment(@RequestParam String newComment, @RequestParam String commentMessageId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaMessage message = this.wepaMessageRepository.getOne(Long.parseLong(commentMessageId));
-        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, message, null);
-        this.wepaCommentRepository.save(newWepaComment);
-        return newWepaComment;
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        //WepaMessage message = this.wepaMessageRepository.getOne(Long.parseLong(commentMessageId));
+        //WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, message, null);
+        //this.wepaCommentRepository.save(newWepaComment);
+        return this.defaultService.addMessageComment(newComment, commentMessageId);
     }
     
     @Secured("USER")
     @ResponseBody
     @GetMapping("/newimagecomment")
     public WepaComment newImageComment(@RequestParam String newComment, @RequestParam String commentImageId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        PublicImageObject image = this.publicImageObjectRepository.getOne(Long.parseLong(commentImageId));
-        WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, null, image);
-        this.wepaCommentRepository.save(newWepaComment);
-        return newWepaComment;
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        //PublicImageObject image = this.publicImageObjectRepository.getOne(Long.parseLong(commentImageId));
+        //WepaComment newWepaComment = new WepaComment(user, LocalDateTime.now(), newComment, null, image);
+        //this.wepaCommentRepository.save(newWepaComment);
+        return this.defaultService.addImageComment(newComment, commentImageId);
     }
     
     @Secured("USER")
     @ResponseBody
     @GetMapping("/likeimage")
     public String likeImage(@RequestParam String like) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        PublicImageObject likedImage = this.publicImageObjectRepository.getOne(Long.parseLong(like));
-        if (likedImage.getLikes().contains(user)) {
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        //PublicImageObject likedImage = this.publicImageObjectRepository.getOne(Long.parseLong(like));
+        //if (likedImage.getLikes().contains(user)) {
+        //    return null;
+        //}
+        //likedImage.getLikes().add(user);
+        //this.publicImageObjectRepository.save(likedImage);
+        if (!this.defaultService.addImageLike(like)) {
             return null;
         }
-        likedImage.getLikes().add(user);
-        this.publicImageObjectRepository.save(likedImage);
         return "ok";
     }
     
@@ -336,36 +377,39 @@ public class DefaultController {
     @ResponseBody
     @GetMapping("/likemessage")
     public String likeMessage(@RequestParam String like) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        WepaMessage likedImage = this.wepaMessageRepository.getOne(Long.parseLong(like));
-        if (likedImage.getLikes().contains(user)) {
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        //WepaMessage likedImage = this.wepaMessageRepository.getOne(Long.parseLong(like));
+        //if (likedImage.getLikes().contains(user)) {
+        //    return null;
+        //}
+        //likedImage.getLikes().add(user);
+        //this.wepaMessageRepository.save(likedImage);
+        if (!this.defaultService.addMessageLike(like)) {
             return null;
         }
-        likedImage.getLikes().add(user);
-        this.wepaMessageRepository.save(likedImage);
         return "ok";
     }
     
     @PreAuthorize("#removeOwner == authentication.principal.username")
     @PostMapping("/removeimage")
     public String removeImage(@RequestParam String removeOwner, @RequestParam String imageId) {
-        this.publicImageObjectRepository.deleteById(Long.parseLong(imageId));
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        return "redirect:/wepa-tweetter/" + user.getRandom() + "/album";
+        //this.publicImageObjectRepository.deleteById(Long.parseLong(imageId));
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
+        //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
+        return "redirect:/wepa-tweetter/" + this.defaultService.removeImage(imageId).getRandom() + "/album";
     }
     
     @PreAuthorize("#profileOwner == authentication.principal.username")
     @PostMapping("setprofile")
     public String setProfileImage(@RequestParam String profileOwner, @RequestParam String profileId) {
-        PublicImageObject newProfileImage = this.publicImageObjectRepository.findById(Long.parseLong(profileId)).get();
-        WepaTweetter tweetter = this.wepaTweetterRepository.findByUsername(profileOwner);
-        tweetter.setProfileImage(newProfileImage);
-        this.wepaTweetterRepository.save(tweetter);
-        return "redirect:/wepa-tweetter/" + tweetter.getRandom();
+        //PublicImageObject newProfileImage = this.publicImageObjectRepository.findById(Long.parseLong(profileId)).get();
+        //WepaTweetter tweetter = this.wepaTweetterRepository.findByUsername(profileOwner);
+        //tweetter.setProfileImage(newProfileImage);
+        //this.wepaTweetterRepository.save(tweetter);
+        return "redirect:/wepa-tweetter/" + this.defaultService.setProfileImage(profileOwner, profileId).getRandom();
     }
     
 }
