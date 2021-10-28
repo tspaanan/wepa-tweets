@@ -94,7 +94,11 @@ function follow(id) {
     xhttp.onload = function() {
         var LiElement = document.getElementById("li" + id)
         //var LiElement = document.getElementById("searchResultsList")
-        var followObject = JSON.parse(this.responseText)
+        try {
+            var followObject = JSON.parse(this.responseText)
+        } catch(e) {
+            window.location.replace(contextRoot + "login")
+        }
         var alertElement = document.createElement("div")
         if (followObject.username == null) {
             alertElement.className = "alert alert-danger"
@@ -105,8 +109,12 @@ function follow(id) {
             alertElement.style = "margin-top: 10px"
             alertElement.innerHTML = "Success!"
         }
-        if (LiElement.classList.contains("alert")) {
-            LiElement.removeChild(LiElement.lastChild)
+        try {
+            if (LiElement.classList.contains("alert")) {
+                LiElement.removeChild(LiElement.lastChild)
+            }
+        } catch(e) {
+            window.location.replace(contextRoot + "wepa-tweetter/" + followObject.random)
         }
         LiElement.appendChild(alertElement)
         LiElement.classList.add("alert")

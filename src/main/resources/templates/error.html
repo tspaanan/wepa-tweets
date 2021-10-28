@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/layout :: head">
+        <meta charset="UTF-8" />
+        <title>WEPA-Tweets</title>
+    </head>
+    <body>
+        <div th:replace="fragments/layout :: header"></div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <div th:replace="fragments/layout :: sidebar"></div>
+                </div>
+                <div class="col-9">
+                    <p>Something went wrong!</p>
+                    Perhaps you tried to register username or your "favourite random string" that was already in use?        
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragments/layout :: footer"></div>
+    </body>
+</html>

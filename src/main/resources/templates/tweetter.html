@@ -18,6 +18,7 @@
                             <img th:if="${tweetter.profileImage != null}" th:src="@{/images/{id}(id=${tweetter.profileImage.id})}" class="mr-3 img-thumbnail" th:alt="'profile image of ' + ${tweetter.username}" width="200" height="auto" />
                             <div class="media-body">
                                 <h1 class="mt-0" th:text="${tweetter.username}">username</h1>
+                                <button th:id=${tweetter.username} class="btn btn-outline-primary" style="margin-top: 10px;" th:attr="onclick=|follow('${tweetter.username}')|">Follow</button>
                                 <a class="btn btn-outline-primary" th:href="@{/wepa-tweetter/__${tweetter.random}__/album}" style="margin-top: 10px">Image album</a>
                             </div>
                         </div>

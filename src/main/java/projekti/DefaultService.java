@@ -56,6 +56,9 @@ public class DefaultService {
     public WepaComment addImageComment(String comment, String commentImageId) {
         WepaTweetter user = this.getAuthorizedUser();
         PublicImageObject image = this.publicImageObjectRepository.getOne(Long.parseLong(commentImageId));
+        if (image.getOwner().getBlocked().contains(user)) {
+            return new WepaComment();
+        }
         WepaComment newComment = new WepaComment(user, LocalDateTime.now(), comment, null, image);
         this.wepaCommentRepository.save(newComment);
         return newComment;
@@ -79,6 +82,9 @@ public class DefaultService {
     public WepaComment addMessageComment(String comment, String commentMessageId) {
         WepaTweetter user = this.getAuthorizedUser();
         WepaMessage message = this.wepaMessageRepository.getOne(Long.parseLong(commentMessageId));
+        if (message.getTweetter().getBlocked().contains(user)) {
+            return new WepaComment();
+        }
         WepaComment newComment = new WepaComment(user, LocalDateTime.now(), comment, message, null);
         this.wepaCommentRepository.save(newComment);
         return newComment;
@@ -96,6 +102,9 @@ public class DefaultService {
     }
     
     public void blockTweetter(WepaTweetter blocked, WepaTweetter user) {
+        if (blocked.equals(user)) {
+            return;
+        }
         if (this.checkExistingFollowing(blocked, user)) {
             user.getBlocked().add(blocked);
             this.wepaTweetterRepository.save(user);
@@ -166,7 +175,7 @@ public class DefaultService {
         return this.wepaTweetterRepository.findByUsername(username);
     }
     
-    public void registerTweetter(WepaTweetter newTweetter) {
+    public void registerTweetter(WepaTweetter newTweetter) throws Exception {
         newTweetter.setPassword(this.passwordEncoder.encode(newTweetter.getPassword()));
         this.wepaTweetterRepository.save(newTweetter);
     }

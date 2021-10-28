@@ -23,6 +23,7 @@
                         <a class="btn btn-outline-info" th:href="@{/}">Home</a>
                         <a class="btn btn-info" style="margin-top: 5px" th:href="@{/login}" sec:authorize="isAnonymous()">Login</a>
                         <a class="btn btn-info" style="margin-top: 5px" th:href="@{/register}" sec:authorize="isAnonymous()">Register</a>
+                        <a class="btn btn-info" style="margin-top: 5px" th:href="@{/wepa-tweetter/__${tweetterSelf.random}__}" sec:authorize="isAuthenticated()">Profile</a>
                         <a class="btn btn-outline-info" style="margin-top: 5px" th:href="@{/logout}" sec:authorize="isAuthenticated()">Logout</a>
                     </div>
                 </li>

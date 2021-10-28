@@ -76,6 +76,7 @@ public class DefaultController {
         model.addAttribute("messages", this.defaultService.getRootMessages());
         //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
         model.addAttribute("comments", this.defaultService.getRootComments());
+        model.addAttribute("tweetterSelf", this.defaultService.getAuthorizedUser());
         return "index";
     }
     
@@ -85,7 +86,8 @@ public class DefaultController {
     //}
     
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("tweetterSelf", this.defaultService.getAuthorizedUser());
         return "register";
     }
     
@@ -93,8 +95,12 @@ public class DefaultController {
     public String registerPost(@ModelAttribute WepaTweetter newTweetter) {
         //newTweetter.setPassword(this.passwordEncoder.encode(newTweetter.getPassword()));
         //this.wepaTweetterRepository.save(newTweetter);
-        this.defaultService.registerTweetter(newTweetter);
-        return "redirect:/";
+        try {
+            this.defaultService.registerTweetter(newTweetter);
+        } catch (Exception e) {
+            return "error";
+        }
+        return "redirect:/login";
     }
     
     @GetMapping("/wepa-tweetter/{random}")
@@ -122,6 +128,7 @@ public class DefaultController {
         //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
         model.addAttribute("comments", this.defaultService.getCommentsByTweetter(tweetter));
         model.addAttribute("followedComments", this.defaultService.getCommentsFollowed(tweetter));
+        model.addAttribute("tweetterSelf", this.defaultService.getAuthorizedUser());
         return "tweetter";
     }
     
@@ -137,6 +144,7 @@ public class DefaultController {
         //Pageable pageableComments = PageRequest.of(0, 10, Sort.by("timestamp").descending());
         //model.addAttribute("comments", this.wepaCommentRepository.findByImageIn(images, pageableComments));
         model.addAttribute("comments", this.defaultService.getImageComments(images));
+        model.addAttribute("tweetterSelf", this.defaultService.getAuthorizedUser());
         return "album";
     }
     
@@ -200,6 +208,9 @@ public class DefaultController {
         //kokonaista Useria ei ehkä tarvitakaan?
         //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
         WepaTweetter user = this.defaultService.getAuthorizedUser();
+        if (user == null) {
+            return user;
+        }
         
         //prevent user following themselves
         if (user.equals(followed)) {

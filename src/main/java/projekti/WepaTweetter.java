@@ -3,6 +3,7 @@ package projekti;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
@@ -25,9 +26,13 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @Entity
 public class WepaTweetter extends AbstractPersistable<Long> {
     
+    @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
+    @JsonIgnore
     private String realname;
+    @Column(unique = true)
     private String random;
     //@OneToMany//(fetch = FetchType.LAZY) //fluentinium tests require EAGER
     //private List<WepaTweetter> following = new ArrayList<>();
