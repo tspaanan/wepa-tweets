@@ -26,7 +26,7 @@ public class PublicImageObject extends AbstractPersistable<Long> {
     
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Type(type="org.hibernate.type.BinaryType") //Heroku + PostgreSQL requires this; breaks H2 database engine!
+    //@Type(type="org.hibernate.type.BinaryType") //Heroku + PostgreSQL requires this; breaks H2 database engine!
     private byte[] imageContent;
     @ManyToOne
     private WepaTweetter owner;
