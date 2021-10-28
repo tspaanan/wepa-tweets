@@ -1,7 +1,5 @@
 package projekti;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,8 +11,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  *
@@ -43,13 +39,9 @@ public class TestDataComponent implements ApplicationRunner {
     private PasswordEncoder passwordEncoder;
     
     @Override
-    //@Transactional //add later
+    //@Transactional
     public void run(ApplicationArguments args) throws Exception {
-        //this.wepaTweetterRepository.deleteAll();
-        //deleteAll() ei toimi, koska CASCADE-optiot ei aktivoidu
         System.out.println(System.getProperty("user.dir"));
-        //File oldDb = new File("database.mv.db");
-        //oldDb.delete();
         for (int i = 1; i < 10; i++) {
             WepaTweetter newTweetter = new WepaTweetter();
             newTweetter.setUsername("user" + i);

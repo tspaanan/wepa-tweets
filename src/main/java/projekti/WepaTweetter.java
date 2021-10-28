@@ -34,14 +34,12 @@ public class WepaTweetter extends AbstractPersistable<Long> {
     private String realname;
     @Column(unique = true)
     private String random;
-    //@OneToMany//(fetch = FetchType.LAZY) //fluentinium tests require EAGER
-    //private List<WepaTweetter> following = new ArrayList<>();
     @JsonIgnore
     @OneToMany(mappedBy = "followed")
-    private List<WepaFollower> following = new ArrayList<>(); //tämä seuraa
+    private List<WepaFollower> following = new ArrayList<>(); //this one follows
     @JsonIgnore
     @OneToMany(mappedBy = "followedBy")
-    private List<WepaFollower> followingBy = new ArrayList<>(); //nämä seuraavat
+    private List<WepaFollower> followingBy = new ArrayList<>(); //these are following
     @JsonIgnore
     @OneToMany
     private List<WepaTweetter> blocked = new ArrayList<>();

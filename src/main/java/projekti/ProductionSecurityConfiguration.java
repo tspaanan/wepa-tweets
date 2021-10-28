@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@Profile("production")
+@Profile("production") //default configuration for Heroku ("production")
 public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired

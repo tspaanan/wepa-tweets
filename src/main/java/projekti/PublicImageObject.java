@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 /**
@@ -27,7 +26,7 @@ public class PublicImageObject extends AbstractPersistable<Long> {
     
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    //@Type(type="org.hibernate.type.BinaryType") //tämä varmistaa toiminnan Herokussa, hajottaa H2-tietokantamoottorin!
+    //@Type(type="org.hibernate.type.BinaryType") //Heroku + PostgreSQL requires this; breaks H2 database engine!
     private byte[] imageContent;
     @ManyToOne
     private WepaTweetter owner;

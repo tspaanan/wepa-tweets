@@ -1,8 +1,6 @@
 package projekti;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,13 +11,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -45,42 +40,17 @@ public class IntegrationTest {
     
     @Before
     public void setUp() {
-        //WepaTweetter newTweetter = new WepaTweetter();
-        //newTweetter.setUsername("testUser");
-        //newTweetter.setPassword("password");
-        //newTweetter.setRealname("realName");
-        //newTweetter.setRandom("string");
-        //this.wepaTweetterRepository.save(newTweetter);
-        //otherTweetter.setUsername("otherUser");
-        //this.wepaTweetterRepository.save(otherTweetter);
         newUser.setName("testUser");
         SecurityContextHolder.getContext().setAuthentication(auth);
-        //newFollower.setFollowed(otherTweetter);
-        //newFollower.setFollowedBy(newTweetter);
-        //wepaFollowerRepository.save(newFollower);
     }
     
     @After
     public void tearDown() {
-        //this.wepaFollowerRepository.deleteAll();
-        //this.wepaCommentRepository.deleteAll();
-        //this.wepaMessageRepository.deleteAll();
-        //this.publicImageObjectRepository.deleteAll();
-        //this.wepaTweetterRepository.deleteAll();
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
-    
-    //private WepaTweetter newTweetter = new WepaTweetter();
-    //private WepaTweetter otherTweetter = new WepaTweetter();
     private MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
     private User newUser = new User();
     private Authentication auth = new UsernamePasswordAuthenticationToken(newUser,null);
-    //private WepaFollower newFollower = new WepaFollower();
     
     @Autowired
     private PublicImageObjectRepository publicImageObjectRepository;
@@ -102,7 +72,6 @@ public class IntegrationTest {
     
     @Test
     public void imageCanBeAdded() throws IOException {
-        //File mockFile = new File("mFile");
         WepaTweetter newTweetter = new WepaTweetter();
         newTweetter.setUsername("username1");
         wepaTweetterRepository.save(newTweetter);
@@ -115,7 +84,6 @@ public class IntegrationTest {
     
     @Test
     public void imageCommentCanBeAdded() throws IOException {
-        //MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
         WepaTweetter newTweetter = new WepaTweetter();
         newTweetter.setUsername("username2");
         wepaTweetterRepository.save(newTweetter);
@@ -155,10 +123,6 @@ public class IntegrationTest {
     
     @Test
     public void tweetterCanBeBlocked() {
-        //WepaFollower testFollower = new WepaFollower();
-        //newFollower.setFollowed(otherTweetter);
-        //newFollower.setFollowedBy(newTweetter);
-        //wepaFollowerRepository.save(newFollower);
         WepaTweetter newTweetter = new WepaTweetter();
         newTweetter.setUsername("username5");
         wepaTweetterRepository.save(newTweetter);
