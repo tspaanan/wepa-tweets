@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author tspaanan
  */
 @Service
+@Transactional
 public class DefaultService {
     
     @Autowired
@@ -185,8 +187,11 @@ public class DefaultService {
     }
     
     public WepaTweetter removeImage(String imageId) {
+        WepaTweetter owner = this.getAuthorizedUser();
+        //System.out.println(owner.getProfileImage().getId().toString());
+        //System.out.println(imageId);
         this.publicImageObjectRepository.deleteById(Long.parseLong(imageId));
-        return this.getAuthorizedUser();
+        return owner;
     }
     
     public void saveNewWepaFollower(WepaTweetter followed, WepaTweetter user) {

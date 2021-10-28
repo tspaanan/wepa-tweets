@@ -410,11 +410,12 @@ public class DefaultController {
         //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         //String username = auth.getName();
         //WepaTweetter user = this.wepaTweetterRepository.findByUsername(username);
-        return "redirect:/wepa-tweetter/" + this.defaultService.removeImage(imageId).getRandom() + "/album";
+        WepaTweetter owner = this.defaultService.removeImage(imageId);
+        return "redirect:/wepa-tweetter/" + owner.getRandom() + "/album";
     }
     
     @PreAuthorize("#profileOwner == authentication.principal.username")
-    @PostMapping("setprofile")
+    @PostMapping("/setprofile")
     public String setProfileImage(@RequestParam String profileOwner, @RequestParam String profileId) {
         //PublicImageObject newProfileImage = this.publicImageObjectRepository.findById(Long.parseLong(profileId)).get();
         //WepaTweetter tweetter = this.wepaTweetterRepository.findByUsername(profileOwner);

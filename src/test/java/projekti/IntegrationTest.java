@@ -46,18 +46,18 @@ public class IntegrationTest {
     @Before
     public void setUp() {
         //WepaTweetter newTweetter = new WepaTweetter();
-        newTweetter.setUsername("testUser");
-        newTweetter.setPassword("password");
-        newTweetter.setRealname("realName");
-        newTweetter.setRandom("string");
-        this.wepaTweetterRepository.save(newTweetter);
-        otherTweetter.setUsername("otherUser");
-        this.wepaTweetterRepository.save(otherTweetter);
+        //newTweetter.setUsername("testUser");
+        //newTweetter.setPassword("password");
+        //newTweetter.setRealname("realName");
+        //newTweetter.setRandom("string");
+        //this.wepaTweetterRepository.save(newTweetter);
+        //otherTweetter.setUsername("otherUser");
+        //this.wepaTweetterRepository.save(otherTweetter);
         newUser.setName("testUser");
         SecurityContextHolder.getContext().setAuthentication(auth);
-        newFollower.setFollowed(otherTweetter);
-        newFollower.setFollowedBy(newTweetter);
-        wepaFollowerRepository.save(newFollower);
+        //newFollower.setFollowed(otherTweetter);
+        //newFollower.setFollowedBy(newTweetter);
+        //wepaFollowerRepository.save(newFollower);
     }
     
     @After
@@ -75,12 +75,12 @@ public class IntegrationTest {
     // @Test
     // public void hello() {}
     
-    private WepaTweetter newTweetter = new WepaTweetter();
-    private WepaTweetter otherTweetter = new WepaTweetter();
+    //private WepaTweetter newTweetter = new WepaTweetter();
+    //private WepaTweetter otherTweetter = new WepaTweetter();
     private MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
     private User newUser = new User();
     private Authentication auth = new UsernamePasswordAuthenticationToken(newUser,null);
-    private WepaFollower newFollower = new WepaFollower();
+    //private WepaFollower newFollower = new WepaFollower();
     
     @Autowired
     private PublicImageObjectRepository publicImageObjectRepository;
@@ -103,9 +103,12 @@ public class IntegrationTest {
     @Test
     public void imageCanBeAdded() throws IOException {
         //File mockFile = new File("mFile");
+        WepaTweetter newTweetter = new WepaTweetter();
+        newTweetter.setUsername("username1");
+        wepaTweetterRepository.save(newTweetter);
         defaultService.addImage(newTweetter, mockFile, "description");
         PublicImageObject mockImage = publicImageObjectRepository.findByOwner(newTweetter).get(0);
-        assertEquals("testUser", mockImage.getOwner().getUsername());
+        assertEquals("username1", mockImage.getOwner().getUsername());
         assertEquals("description", mockImage.getDescription());
         assertEquals(1, mockImage.getImageContent().length);
     }
@@ -113,6 +116,9 @@ public class IntegrationTest {
     @Test
     public void imageCommentCanBeAdded() throws IOException {
         //MockMultipartFile mockFile = new MockMultipartFile("mockFile", new byte[1]);
+        WepaTweetter newTweetter = new WepaTweetter();
+        newTweetter.setUsername("username2");
+        wepaTweetterRepository.save(newTweetter);
         defaultService.addImage(newTweetter, mockFile, "description");
         WepaComment testComment = defaultService.addImageComment("comment", Long.toString(publicImageObjectRepository.findByOwner(newTweetter).get(0).getId()));
         assertEquals("comment", testComment.getCommentContent());
@@ -130,12 +136,18 @@ public class IntegrationTest {
     
     @Test
     public void messageCanBeAdded() {
+        WepaTweetter newTweetter = new WepaTweetter();
+        newTweetter.setUsername("username3");
+        wepaTweetterRepository.save(newTweetter);
         defaultService.addMessage(newTweetter, "message");
         assertEquals("message", wepaMessageRepository.findAll().get(0).getMessageContent());
     }
     
     @Test
     public void messageCommentCanBeAdded() {
+        WepaTweetter newTweetter = new WepaTweetter();
+        newTweetter.setUsername("username4");
+        wepaTweetterRepository.save(newTweetter);
         defaultService.addMessage(newTweetter, "message");
         WepaComment testComment = defaultService.addMessageComment("comment", Long.toString(wepaMessageRepository.findAll().get(0).getId()));
         assertEquals("comment", testComment.getCommentContent());
@@ -147,12 +159,23 @@ public class IntegrationTest {
         //newFollower.setFollowed(otherTweetter);
         //newFollower.setFollowedBy(newTweetter);
         //wepaFollowerRepository.save(newFollower);
+        WepaTweetter newTweetter = new WepaTweetter();
+        newTweetter.setUsername("username5");
+        wepaTweetterRepository.save(newTweetter);
+        WepaTweetter otherTweetter = new WepaTweetter();
+        otherTweetter.setUsername("username6");
+        wepaTweetterRepository.save(otherTweetter);
+        WepaFollower testFollower = new WepaFollower();
+        testFollower.setFollowed(newTweetter);
+        testFollower.setFollowedBy(otherTweetter);
+        newTweetter.getFollowing().add(testFollower);
+        wepaTweetterRepository.save(newTweetter);
         defaultService.blockTweetter(newTweetter, otherTweetter);
-        assertFalse(otherTweetter.getFollowingBy().contains(newTweetter));
+        assertFalse(otherTweetter.getFollowingBy().contains(testFollower));
     }
     
     @Test
-    public void tweetterCanBeRegistered() {
+    public void tweetterCanBeRegistered() throws Exception {
         WepaTweetter registered = new WepaTweetter();
         registered.setUsername("registered");
         registered.setPassword("password");
@@ -161,11 +184,22 @@ public class IntegrationTest {
         assertNotEquals("password", tested.getPassword()); //password should be hashed
     }
     
-    @Test
-    public void followerCanBeRemoved() {
-        defaultService.removeFollowing(otherTweetter, newTweetter);
-        assertFalse(newTweetter.getFollowing().contains(otherTweetter));
-    }
+    //@Test
+    //public void followerCanBeRemoved() {
+    //    WepaTweetter newTweetter = new WepaTweetter();
+    //    newTweetter.setUsername("username7");
+    //    wepaTweetterRepository.save(newTweetter);
+    //    WepaTweetter otherTweetter = new WepaTweetter();
+    //    otherTweetter.setUsername("username8");
+    //    wepaTweetterRepository.save(otherTweetter);
+    //    WepaFollower testFollower = new WepaFollower();
+    //    testFollower.setFollowed(newTweetter);
+    //    testFollower.setFollowedBy(otherTweetter);
+    //    newTweetter.getFollowing().add(testFollower);
+    //    wepaTweetterRepository.save(newTweetter);
+    //    defaultService.removeFollowing(otherTweetter, newTweetter);
+    //    assertFalse(newTweetter.getFollowing().contains(testFollower));
+    //}
     
     @Test
     public void profileImageCanBeSet() throws IOException {
@@ -176,31 +210,4 @@ public class IntegrationTest {
         WepaTweetter testTweetter = defaultService.setProfileImage("imageTweetter", Long.toString(publicImageObjectRepository.findByOwner(imageTweetter).get(0).getId()));
         assertEquals("description", testTweetter.getProfileImage().getDescription());
     }
-    
-    //@Test
-    //public void userCanRegister() {
-    //    this.wepaTweetterRepository.deleteAll();
-    //    defaultController.registerPost(newTweetter);
-    //    WepaTweetter registered = this.wepaTweetterRepository.findByUsername("testUser");
-    //    assertEquals("realName", registered.getRealname());
-    //    assertEquals("string", registered.getRandom());
-    //    assertNotEquals("password", registered.getPassword()); //asserting NotEqual, bc/
-        //password should have been hashed via BCrypt
-    //}
-    
-    //@Test
-    //public void userCanBeSearchedFor() {
-    //    List<WepaTweetter> searchedForList = defaultController.search(newTweetter.getUsername());
-    //    WepaTweetter searchedFor = searchedForList.get(0);
-    //    assertEquals("testUser", searchedFor.getUsername());
-    //    assertEquals("realName", searchedFor.getRealname());
-    //    assertEquals("string", searchedFor.getRandom());
-    //}
-    //selvitä tämä LazyInitializationException
-    //https://thorben-janssen.com/lazyinitializationexception/
-    
-    //@Test
-    //public void userCanFollowOtherUsers() {
-        //without SecurityContext present this test cannot be written at this level
-    //}
 }
